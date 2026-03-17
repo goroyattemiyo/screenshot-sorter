@@ -52,3 +52,39 @@
 - PHAssetCollectionChangeRequest.creationRequestForAssetCollection でアルバム作成
 - PHAssetChangeRequest.creationRequestForAsset で画像追加
 - ユーザー向けには「フォルダ」表記（「アルバム」は使わない）
+
+## D-002: Flutter状態管理方式の選定
+
+| 項目 | 内容 |
+|------|------|
+| 日付 | 2026-03-17 |
+| ステータス | 承認 |
+| スコア | 37/40 (92.5%) |
+
+### 背景
+MVP（共有シート→フォルダ選択→保存）のFlutter状態管理方式を選定する。
+
+### 選択肢
+1. **Riverpod** — 型安全、テスト容易、依存少、拡張性高
+2. **Bloc** — テスト容易だがボイラープレート過多、この規模には過剰
+3. **setState + InheritedWidget** — 最小構成だがPhase 2拡張に耐えない
+
+### 決定
+**Riverpod（flutter_riverpod）を採用**
+
+### 理由
+- 画面数1〜2、状態は画像パス・フォルダ一覧・選択状態・保存状態の4つでシンプル
+- Riverpodは小規模でもオーバーヘッドが少なく、Phase 2（クラウド連携）追加時にProvider拡張で対応可能
+- Providerのモックが容易でUnit Test記述しやすい
+- 依存は flutter_riverpod + riverpod の2パッケージのみ
+
+### スコア内訳
+| 評価軸 | 配点 | スコア |
+|--------|------|--------|
+| 技術的適合性 | /10 | 9 |
+| 保守性 | /10 | 9 |
+| スコープ適合性 | /5 | 5 |
+| テスト容易性 | /5 | 5 |
+| リスク | /5 | 4 |
+| コスト効率 | /5 | 5 |
+| **合計** | **/40** | **37** |
