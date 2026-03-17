@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Screenshot Sorter - UI Mockup</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,'Segoe UI','Roboto',sans-serif;background:#1a1a2e;display:flex;justify-content:center;padding:20px}
+.wrap{display:flex;flex-direction:column;align-items:center}
+.tabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.tab{padding:8px 16px;background:#2a2a3a;color:#a0a0b0;border:none;border-radius:8px;cursor:pointer;font-size:13px}
+.tab.on{background:#6750a4;color:#fff}
+.phone{width:375px;height:720px;background:#121212;border-radius:32px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.5);display:flex;flex-direction:column;position:relative}
+.sbar{height:44px;background:#1e1e2e;display:flex;align-items:center;justify-content:space-between;padding:0 20px;color:#fff;font-size:12px}
+.abar{height:56px;background:#1e1e2e;display:flex;align-items:center;justify-content:center;color:#e0e0e0;font-size:18px;font-weight:500;border-bottom:1px solid #2a2a3a}
+.prev{height:120px;padding:12px;display:flex;align-items:center;gap:16px;background:#1a1a2a}
+.pimg{width:96px;height:96px;border-radius:8px;background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;text-align:center;flex-shrink:0}
+.ptxt{color:#e0e0e0;font-size:16px;line-height:1.5}
+.dvd{height:1px;background:#2a2a3a}
+.flist{flex:1;overflow-y:auto}
+.fi{height:56px;display:flex;align-items:center;padding:0 16px;gap:16px;color:#e0e0e0;cursor:pointer;border-bottom:1px solid #1a1a2a;transition:background .15s}
+.fi:hover{background:#2a2a3a}
+.fi:active{background:#3a3a5a}
+.fn{flex:1;font-size:15px}
+.fa{color:#666;font-size:14px}
+.fab{position:absolute;bottom:24px;right:16px;background:#6750a4;color:#fff;border:none;border-radius:16px;padding:14px 20px;font-size:14px;font-weight:500;display:flex;align-items:center;gap:8px;cursor:pointer;box-shadow:0 4px 12px rgba(103,80,164,.4)}
+.ov{display:none;position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);z-index:10;justify-content:center;align-items:center}
+.ov.on{display:flex}
+.dlg{width:300px;background:#2d2d3d;border-radius:16px;padding:24px}
+.dlg h3{color:#e0e0e0;font-size:18px;margin-bottom:16px}
+.dlg input{width:100%;padding:12px;border:1px solid #4a4a5a;border-radius:8px;background:#1a1a2a;color:#e0e0e0;font-size:14px;outline:none}
+.dlg input:focus{border-color:#6750a4}
+.da{display:flex;justify-content:flex-end;gap:8px;margin-top:20px}
+.bc{padding:10px 16px;border:none;background:transparent;color:#a0a0b0;cursor:pointer;border-radius:8px;font-size:14px}
+.bk{padding:10px 20px;border:none;background:#6750a4;color:#fff;cursor:pointer;border-radius:8px;font-size:14px;font-weight:500}
+.sb{position:absolute;bottom:80px;left:16px;right:16px;background:#323242;color:#fff;padding:14px 16px;border-radius:8px;font-size:14px;display:none;z-index:20}
+.sb.on{display:block}
+.desc{color:#888;font-size:13px;margin-top:12px;text-align:center;line-height:1.6}
+.empty{display:flex;align-items:center;justify-content:center;height:100%;color:#888;text-align:center;line-height:1.8;font-size:14px;padding:20px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="tabs">
+<button class="tab on" onclick="show('main',this)">メイン画面</button>
+<button class="tab" onclick="show('dlg',this)">新規フォルダ</button>
+<button class="tab" onclick="show('done',this)">保存完了</button>
+<button class="tab" onclick="show('empty',this)">初回起動</button>
+</div>
+<div class="phone">
+<div class="sbar"><span>9:41</span><span>📶 🔋</span></div>
+<div class="abar">保存先フォルダを選択</div>
+<div class="prev" id="pv">
+<div class="pimg">📸<br>スクショ<br>プレビュー</div>
+<div class="ptxt">保存先フォルダを<br>選択してください</div>
+</div>
+<div class="dvd"></div>
+<div class="flist" id="fl"></div>
+<button class="fab" id="fb" onclick="show('dlg',document.querySelectorAll('.tab')[1])">📂 新規フォルダ</button>
+<div class="ov" id="ov">
+<div class="dlg">
+<h3>新規フォルダ</h3>
+<input type="text" id="inp" placeholder="フォルダ名を入力">
+<div class="da">
+<button class="bc" onclick="show('main',document.querySelectorAll('.tab')[0])">キャンセル</button>
+<button class="bk" onclick="doSave()">作成して保存</button>
+</div>
+</div>
+</div>
+<div class="sb" id="sb"></div>
+</div>
+<p class="desc" id="ds">↑ フォルダをタップすると保存動作をシミュレートします</p>
+</div>
+<script>
+var folders=['案件A：田中様','SNS感想スクショ','売上報告','Instagram DM','メルカリ取引'];
+function mkfl(clickable){
+var h='';
+for(var i=0;i<folders.length;i++){
+if(clickable)h+='<div class="fi" onclick="tapF(\''+folders[i]+'\')"><span style="font-size:24px">📁</span><span class="fn">'+folders[i]+'</span><span class="fa">›</span></div>';
+else h+='<div class="fi"><span style="font-size:24px">📁</span><span class="fn">'+folders[i]+'</span><span class="fa">›</span></div>';
+}
+return h;
+}
+function show(s,btn){
+document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('on')});
+if(btn)btn.classList.add('on');
+var pv=document.getElementById('pv');
+var fl=document.getElementById('fl');
+var fb=document.getElementById('fb');
+var ov=document.getElementById('ov');
+var sb=document.getElementById('sb');
+var ds=document.getElementById('ds');
+ov.classList.remove('on');sb.classList.remove('on');
+fb.style.display='flex';
+if(s==='main'){
+pv.innerHTML='<div class="pimg">📸<br>スクショ<br>プレビュー</div><div class="ptxt">保存先フォルダを<br>選択してください</div>';
+fl.innerHTML=mkfl(true);
+ds.textContent='↑ フォルダをタップすると保存動作をシミュレートします';
+}else if(s==='dlg'){
+pv.innerHTML='<div class="pimg">📸<br>スクショ<br>プレビュー</div><div class="ptxt">保存先フォルダを<br>選択してください</div>';
+fl.innerHTML=mkfl(false);
+ov.classList.add('on');
+document.getElementById('inp').value='';
+ds.textContent='↑ フォルダ名を入力して「作成して保存」をタップ';
+}else if(s==='done'){
+pv.innerHTML='<div class="pimg">📸<br>スクショ<br>プレビュー</div><div class="ptxt">保存先フォルダを<br>選択してください</div>';
+fl.innerHTML=mkfl(false);
+sb.textContent='「SNS感想スクショ」に保存しました ✓';
+sb.classList.add('on');
+ds.textContent='↑ 保存完了後、SnackBarが表示されアプリが閉じます';
+}else if(s==='empty'){
+pv.innerHTML='<div style="width:100%;text-align:center;color:#888;font-size:15px;padding:20px">共有シートから画像を送ってください</div>';
+fl.innerHTML='<div class="empty">フォルダ履歴がありません<br>下の「+」から新規作成してください</div>';
+fb.style.display='none';
+ds.textContent='↑ 画像なしで直接アプリを開いた場合の表示';
+}
+}
+function tapF(name){
+var sb=document.getElementById('sb');
+sb.textContent='「'+name+'」に保存しました ✓';
+sb.classList.add('on');
+setTimeout(function(){sb.classList.remove('on')},2000);
+}
+function doSave(){
+var v=document.getElementById('inp').value.trim();
+if(!v)return;
+folders.unshift(v);
+show('main',document.querySelectorAll('.tab')[0]);
+var sb=document.getElementById('sb');
+sb.textContent='「'+v+'」に保存しました ✓';
+sb.classList.add('on');
+setTimeout(function(){sb.classList.remove('on')},2000);
+}
+show('main',document.querySelectorAll('.tab')[0]);
+</script>
+</body>
+</html>
