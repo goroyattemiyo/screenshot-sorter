@@ -2,15 +2,36 @@
 .dart_tool/
 .packages
 build/
-*.iml
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+pubspec.lock
+
+# IDE
 .idea/
+*.iml
 .vscode/
-*.lock
+*.swp
+*.swo
 
 # OS
 .DS_Store
 Thumbs.db
 
-# IDE
-*.swp
-*.swo
+# Android
+android/.gradle/
+android/local.properties
+android/**/GeneratedPluginRegistrant.java
+android/key.properties
+*.jks
+
+# iOS
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/Flutter/Generated.xcconfig
+ios/Flutter/app.frameworks/
+ios/ServiceDefinitions.json
+ios/Runner/GeneratedPluginRegistrant.*
