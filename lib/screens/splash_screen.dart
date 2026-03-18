@@ -71,13 +71,19 @@ class _SplashScreenState extends State<SplashScreen>
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(24),
                         gradient: const LinearGradient(
-                          colors: [Color(0xFF7C4DFF), Color(0xFF448AFF)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
+                          colors: [
+                            Color(0xFFFF0080),
+                            Color(0xFFFF8C00),
+                            Color(0xFFFFE600),
+                            Color(0xFF00FF88),
+                            Color(0xFF00CFFF),
+                            Color(0xFF7C4DFF),
+                            Color(0xFFFF0080),
+                          ],
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFF7C4DFF).withValues(alpha: 0.4),
+                            color: const Color(0xFFFF0080).withValues(alpha: 0.4),
                             blurRadius: 30,
                             spreadRadius: 5,
                           ),
@@ -86,13 +92,25 @@ class _SplashScreenState extends State<SplashScreen>
                       child: const Icon(Icons.photo_library_rounded, size: 52, color: Colors.white),
                     ),
                     const SizedBox(height: 24),
-                    const Text(
-                      'Screenshot Sorter',
-                      style: TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        letterSpacing: 1.2,
+                    ShaderMask(
+                      shaderCallback: (bounds) => const LinearGradient(
+                        colors: [
+                          Color(0xFFFF0080),
+                          Color(0xFFFF8C00),
+                          Color(0xFFFFE600),
+                          Color(0xFF00FF88),
+                          Color(0xFF00CFFF),
+                          Color(0xFF7C4DFF),
+                        ],
+                      ).createShader(bounds),
+                      child: const Text(
+                        'Screenshot Sorter',
+                        style: TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          letterSpacing: 1.2,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 8),

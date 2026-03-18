@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_handler/share_handler.dart';
 import '../providers/share_provider.dart';
 import '../providers/folder_provider.dart';
+import '../providers/theme_provider.dart';
 import '../services/image_save_service.dart';
 
 class FolderSelectScreen extends ConsumerStatefulWidget {
@@ -16,13 +17,26 @@ class FolderSelectScreen extends ConsumerStatefulWidget {
 class _FolderSelectScreenState extends ConsumerState<FolderSelectScreen> {
   final _newFolderController = TextEditingController();
   bool _alreadySaved = false;
+  Map<String, int> _folderCounts = {};
 
   @override
   void initState() {
     super.initState();
     Future.microtask(() async {
       await ref.read(folderHistoryProvider.notifier).load();
+      _updateFolderCounts();
     });
+  }
+
+  Future<void> _updateFolderCounts() async {
+    final folders = ref.read(folderHistoryProvider);
+    final notifier = ref.read(folderHistoryProvider.notifier);
+    final counts = <String, int>{};
+    for (final folder in folders) {
+      final files = await notifier.getFilesForFolder(folder);
+      counts[folder] = files.length;
+    }
+    if (mounted) setState(() => _folderCounts = counts);
   }
 
   @override
@@ -39,7 +53,6 @@ class _FolderSelectScreenState extends ConsumerState<FolderSelectScreen> {
         newImagePath = media.attachments!.first?.path;
       }
     }
-
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -50,13 +63,12 @@ class _FolderSelectScreenState extends ConsumerState<FolderSelectScreen> {
           folderHistoryNotifier: ref.read(folderHistoryProvider.notifier),
           sharedMediaNotifier: ref.read(sharedMediaProvider.notifier),
           onSaveComplete: () {
-            setState(() {
-              _alreadySaved = true;
-            });
+            setState(() => _alreadySaved = true);
+            _updateFolderCounts();
           },
         ),
       ),
-    );
+    ).then((_) => _updateFolderCounts());
   }
 
   Future<void> _showNewFolderDialog() async {
@@ -88,7 +100,6 @@ class _FolderSelectScreenState extends ConsumerState<FolderSelectScreen> {
         ],
       ),
     );
-
     if (folderName != null && folderName.isNotEmpty) {
       _openFolderDetail(folderName);
     }
@@ -98,6 +109,7 @@ class _FolderSelectScreenState extends ConsumerState<FolderSelectScreen> {
   Widget build(BuildContext context) {
     final media = ref.watch(sharedMediaProvider);
     final folders = ref.watch(folderHistoryProvider);
+    final hue = ref.watch(themeHueProvider);
     final hasImage = media != null && (media.attachments?.isNotEmpty ?? false);
 
     return Scaffold(
@@ -148,14 +160,47 @@ class _FolderSelectScreenState extends ConsumerState<FolderSelectScreen> {
                     itemCount: folders.length,
                     itemBuilder: (context, index) {
                       final folder = folders[index];
+                      final count = _folderCounts[folder] ?? 0;
                       return ListTile(
-                        leading: const Icon(Icons.folder, color: Colors.amber),
+                        leading: Icon(Icons.folder, color: HSLColor.fromAHSL(1, hue, 0.8, 0.6).toColor()),
                         title: Text(folder),
+                        subtitle: Text('$count 枚', style: const TextStyle(fontSize: 12, color: Colors.grey)),
                         trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                         onTap: () => _openFolderDetail(folder),
                       );
                     },
                   ),
+          ),
+          SafeArea(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                color: Colors.black26,
+                border: Border(top: BorderSide(color: HSLColor.fromAHSL(0.3, hue, 0.8, 0.5).toColor())),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.palette, size: 20, color: HSLColor.fromAHSL(1, hue, 0.8, 0.6).toColor()),
+                  Expanded(
+                    child: SliderTheme(
+                      data: SliderThemeData(
+                        trackHeight: 6,
+                        activeTrackColor: HSLColor.fromAHSL(1, hue, 0.8, 0.5).toColor(),
+                        inactiveTrackColor: Colors.white24,
+                        thumbColor: HSLColor.fromAHSL(1, hue, 0.9, 0.6).toColor(),
+                        overlayColor: HSLColor.fromAHSL(0.3, hue, 0.8, 0.5).toColor(),
+                      ),
+                      child: Slider(
+                        value: hue,
+                        min: 0,
+                        max: 360,
+                        onChanged: (v) => ref.read(themeHueProvider.notifier).setHue(v),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         ],
       ),
@@ -229,12 +274,20 @@ class _FolderDetailScreenState extends State<FolderDetailScreen> {
   bool _saving = false;
   List<File> _existingFiles = [];
   int? _viewingIndex;
+  late PageController _pageController;
 
   @override
   void initState() {
     super.initState();
     _saved = widget.alreadySaved;
+    _pageController = PageController();
     _loadExistingFiles();
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadExistingFiles() async {
@@ -242,9 +295,7 @@ class _FolderDetailScreenState extends State<FolderDetailScreen> {
     final paths = await widget.folderHistoryNotifier.getFilesForFolder(widget.folderName);
     final files = paths.map((p) => File(p)).where((f) => f.existsSync()).toList();
     debugPrint('LoadFiles: ${files.length} files found for ${widget.folderName}');
-    if (mounted) {
-      setState(() => _existingFiles = files);
-    }
+    if (mounted) setState(() => _existingFiles = files);
   }
 
   Future<void> _doSave() async {
@@ -258,10 +309,7 @@ class _FolderDetailScreenState extends State<FolderDetailScreen> {
       await widget.folderHistoryNotifier.addFileToFolder(widget.folderName, savedPath);
       await _loadExistingFiles();
       widget.onSaveComplete?.call();
-      setState(() {
-        _saved = true;
-        _saving = false;
-      });
+      setState(() { _saved = true; _saving = false; });
     } catch (e) {
       setState(() => _saving = false);
       if (mounted) {
@@ -272,7 +320,68 @@ class _FolderDetailScreenState extends State<FolderDetailScreen> {
     }
   }
 
+  Future<void> _deleteImage(int index) async {
+    final file = _existingFiles[index];
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('画像を削除'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxHeight: 150),
+                child: Image.file(file, fit: BoxFit.contain),
+              ),
+            ),
+            const SizedBox(height: 12),
+            const Text('この画像を削除しますか？'),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('キャンセル'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('削除'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true) {
+      try {
+        await file.delete();
+        await widget.folderHistoryNotifier.removeFileFromFolder(widget.folderName, file.path);
+        await _loadExistingFiles();
+        if (_viewingIndex != null) {
+          if (_existingFiles.isEmpty) {
+            setState(() => _viewingIndex = null);
+          } else if (_viewingIndex! >= _existingFiles.length) {
+            setState(() => _viewingIndex = _existingFiles.length - 1);
+          }
+        }
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('画像を削除しました')),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('削除に失敗: $e')),
+          );
+        }
+      }
+    }
+  }
+
   void _viewImage(int index) {
+    _pageController = PageController(initialPage: index);
     setState(() => _viewingIndex = index);
   }
 
@@ -282,18 +391,13 @@ class _FolderDetailScreenState extends State<FolderDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (_viewingIndex != null) {
-      return _buildImageViewer();
-    }
+    if (_viewingIndex != null) return _buildImageViewer();
     return _buildMainView();
   }
 
   Widget _buildMainView() {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.folderName),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: Text(widget.folderName), centerTitle: true),
       body: Column(
         children: [
           if (!_saved && widget.newImagePath != null)
@@ -304,26 +408,14 @@ class _FolderDetailScreenState extends State<FolderDetailScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    '新しく保存する画像',
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: Color(0xFF9C84D4),
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  const Text('新しく保存する画像', style: TextStyle(fontSize: 13, color: Color(0xFF9C84D4), fontWeight: FontWeight.bold)),
                   const SizedBox(height: 8),
                   ClipRRect(
                     borderRadius: BorderRadius.circular(8),
                     child: ConstrainedBox(
                       constraints: const BoxConstraints(maxHeight: 200),
-                      child: Image.file(
-                        File(widget.newImagePath!),
-                        width: double.infinity,
-                        fit: BoxFit.contain,
-                        errorBuilder: (context, error, stackTrace) =>
-                            const Icon(Icons.broken_image, size: 64),
-                      ),
+                      child: Image.file(File(widget.newImagePath!), width: double.infinity, fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) => const Icon(Icons.broken_image, size: 64)),
                     ),
                   ),
                 ],
@@ -331,64 +423,38 @@ class _FolderDetailScreenState extends State<FolderDetailScreen> {
             ),
           if (_saved)
             Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(16),
+              width: double.infinity, padding: const EdgeInsets.all(16),
               color: const Color(0xFF1B3A1B),
-              child: const Row(
-                children: [
-                  Icon(Icons.check_circle, color: Color(0xFF4CAF50)),
-                  SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      '保存完了！',
-                      style: TextStyle(color: Color(0xFF4CAF50), fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ],
-              ),
+              child: const Row(children: [
+                Icon(Icons.check_circle, color: Color(0xFF4CAF50)),
+                SizedBox(width: 8),
+                Expanded(child: Text('保存完了！', style: TextStyle(color: Color(0xFF4CAF50), fontWeight: FontWeight.bold))),
+              ]),
             ),
           const Divider(height: 1),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            child: Row(
-              children: [
-                const Icon(Icons.photo_library, size: 18, color: Color(0xFF9C84D4)),
-                const SizedBox(width: 8),
-                Text(
-                  'フォルダ内の画像（${_existingFiles.length}件）',
-                  style: const TextStyle(fontSize: 13, color: Color(0xFFA0A0B0)),
-                ),
-              ],
-            ),
+            child: Row(children: [
+              const Icon(Icons.photo_library, size: 18, color: Color(0xFF9C84D4)),
+              const SizedBox(width: 8),
+              Text('フォルダ内の画像（${_existingFiles.length}件）', style: const TextStyle(fontSize: 13, color: Color(0xFFA0A0B0))),
+            ]),
           ),
           Expanded(
             child: _existingFiles.isEmpty
-                ? const Center(
-                    child: Text(
-                      'まだ画像がありません\n保存するとここに表示されます',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.grey),
-                    ),
-                  )
+                ? const Center(child: Text('まだ画像がありません\n保存するとここに表示されます', textAlign: TextAlign.center, style: TextStyle(color: Colors.grey)))
                 : GridView.builder(
                     padding: const EdgeInsets.all(8),
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3,
-                      crossAxisSpacing: 4,
-                      mainAxisSpacing: 4,
-                    ),
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, crossAxisSpacing: 4, mainAxisSpacing: 4),
                     itemCount: _existingFiles.length,
                     itemBuilder: (context, index) {
                       return GestureDetector(
                         onTap: () => _viewImage(index),
+                        onLongPress: () => _deleteImage(index),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(6),
-                          child: Image.file(
-                            _existingFiles[index],
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) =>
-                                const Icon(Icons.broken_image),
-                          ),
+                          child: Image.file(_existingFiles[index], fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) => const Icon(Icons.broken_image)),
                         ),
                       );
                     },
@@ -396,58 +462,47 @@ class _FolderDetailScreenState extends State<FolderDetailScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: (_saved || widget.newImagePath == null)
-          ? null
-          : SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: FilledButton.icon(
-                  onPressed: _saving ? null : _doSave,
-                  icon: _saving
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                      : const Icon(Icons.save),
-                  label: Text(_saving ? '保存中...' : 'このフォルダに保存する'),
-                  style: FilledButton.styleFrom(
-                    minimumSize: const Size(double.infinity, 52),
-                    textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
-            ),
+      bottomNavigationBar: (_saved || widget.newImagePath == null) ? null : SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: FilledButton.icon(
+            onPressed: _saving ? null : _doSave,
+            icon: _saving ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)) : const Icon(Icons.save),
+            label: Text(_saving ? '保存中...' : 'このフォルダに保存する'),
+            style: FilledButton.styleFrom(minimumSize: const Size(double.infinity, 52), textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          ),
+        ),
+      ),
     );
   }
 
   Widget _buildImageViewer() {
-    final file = _existingFiles[_viewingIndex!];
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.black,
-        leading: IconButton(
-          icon: const Icon(Icons.close, color: Colors.white),
-          onPressed: _closeViewer,
-        ),
-        title: Text(
-          '${_viewingIndex! + 1} / ${_existingFiles.length}',
-          style: const TextStyle(color: Colors.white),
-        ),
+        leading: IconButton(icon: const Icon(Icons.close, color: Colors.white), onPressed: _closeViewer),
+        title: Text('${_viewingIndex! + 1} / ${_existingFiles.length}', style: const TextStyle(color: Colors.white)),
         centerTitle: true,
+        actions: [
+          IconButton(icon: const Icon(Icons.delete_outline, color: Colors.redAccent), onPressed: () => _deleteImage(_viewingIndex!)),
+        ],
       ),
-      body: GestureDetector(
-        onTap: _closeViewer,
-        child: Center(
-          child: InteractiveViewer(
-            child: Image.file(
-              file,
-              fit: BoxFit.contain,
-              errorBuilder: (context, error, stackTrace) =>
-                  const Icon(Icons.broken_image, size: 64, color: Colors.white),
+      body: PageView.builder(
+        controller: _pageController,
+        itemCount: _existingFiles.length,
+        onPageChanged: (index) => setState(() => _viewingIndex = index),
+        itemBuilder: (context, index) {
+          return GestureDetector(
+            onTap: _closeViewer,
+            child: Center(
+              child: InteractiveViewer(
+                child: Image.file(_existingFiles[index], fit: BoxFit.contain,
+                  errorBuilder: (context, error, stackTrace) => const Icon(Icons.broken_image, size: 64, color: Colors.white)),
+              ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }

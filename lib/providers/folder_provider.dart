@@ -98,4 +98,13 @@ class FolderHistoryNotifier extends Notifier<List<String>> {
       debugPrint('Migration: added ${newPaths.length} files for $folderName (total: ${merged.length})');
     }
   }
+
+  Future<void> removeFileFromFolder(String folderName, String filePath) async {
+    final prefs = await SharedPreferences.getInstance();
+    final key = 'folder_files_\$folderName';
+    final files = prefs.getStringList(key) ?? [];
+    files.remove(filePath);
+    await prefs.setStringList(key, files);
+    debugPrint('FolderHistory.removeFile: \$folderName -> removed');
+  }
 }
