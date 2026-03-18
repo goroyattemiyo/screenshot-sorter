@@ -293,7 +293,19 @@ class _FolderDetailScreenState extends State<FolderDetailScreen> {
   Future<void> _loadExistingFiles() async {
     await widget.folderHistoryNotifier.migrateExistingFiles(widget.folderName);
     final paths = await widget.folderHistoryNotifier.getFilesForFolder(widget.folderName);
-    final files = paths.map((p) => File(p)).where((f) => f.existsSync()).toList();
+    final existingPaths = <String>[];
+    final files = <File>[];
+    for (final p in paths) {
+      final f = File(p);
+      if (f.existsSync()) {
+        existingPaths.add(p);
+        files.add(f);
+      }
+    }
+    // Sync SharedPreferences with actual files
+    if (existingPaths.length != paths.length) {
+      await widget.folderHistoryNotifier.syncFilesForFolder(widget.folderName, existingPaths);
+    }
     debugPrint('LoadFiles: ${files.length} files found for ${widget.folderName}');
     if (mounted) setState(() => _existingFiles = files);
   }
@@ -441,8 +453,10 @@ class _FolderDetailScreenState extends State<FolderDetailScreen> {
             ]),
           ),
           Expanded(
-            child: _existingFiles.isEmpty
-                ? const Center(child: Text('まだ画像がありません\n保存するとここに表示されます', textAlign: TextAlign.center, style: TextStyle(color: Colors.grey)))
+            child: RefreshIndicator(
+              onRefresh: _loadExistingFiles,
+              child: _existingFiles.isEmpty
+                ? ListView(children: const [SizedBox(height: 200), Center(child: Text('まだ画像がありません\n保存するとここに表示されます', textAlign: TextAlign.center, style: TextStyle(color: Colors.grey)))])
                 : GridView.builder(
                     padding: const EdgeInsets.all(8),
                     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, crossAxisSpacing: 4, mainAxisSpacing: 4),
@@ -459,6 +473,7 @@ class _FolderDetailScreenState extends State<FolderDetailScreen> {
                       );
                     },
                   ),
+            ),
           ),
         ],
       ),

@@ -32,7 +32,7 @@ class _ScreenshotSorterAppState extends ConsumerState<ScreenshotSorterApp> {
   Widget build(BuildContext context) {
     final hue = ref.watch(themeHueProvider);
     return MaterialApp(
-      title: 'Screenshot Sorter',
+      title: 'S³',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorSchemeSeed: HSLColor.fromAHSL(1.0, hue, 0.8, 0.5).toColor(),

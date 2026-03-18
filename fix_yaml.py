@@ -1,4 +1,4 @@
-name: screenshot_sorter
+content = """name: screenshot_sorter
 description: "A new Flutter project."
 publish_to: 'none'
 version: 1.0.0+1
@@ -32,3 +32,7 @@ flutter_launcher_icons:
   image_path: "assets/icon.png"
   adaptive_icon_background: "#000000"
   adaptive_icon_foreground: "assets/icon.png"
+"""
+with open('pubspec.yaml', 'w', encoding='utf-8') as f:
+    f.write(content)
+print("pubspec.yaml rebuilt correctly")

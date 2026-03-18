@@ -20,7 +20,7 @@ class _SplashScreenState extends State<SplashScreen>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1800),
+      duration: const Duration(milliseconds: 2500),
     );
     _fadeIn = Tween<double>(begin: 0, end: 1).animate(
       CurvedAnimation(parent: _controller, curve: const Interval(0, 0.6, curve: Curves.easeIn)),
@@ -29,7 +29,7 @@ class _SplashScreenState extends State<SplashScreen>
       CurvedAnimation(parent: _controller, curve: const Interval(0, 0.6, curve: Curves.easeOutBack)),
     );
     _controller.forward();
-    Timer(const Duration(milliseconds: 2500), () {
+    Timer(const Duration(milliseconds: 4500), () {
       if (mounted) {
         Navigator.of(context).pushReplacement(
           PageRouteBuilder(
@@ -70,26 +70,18 @@ class _SplashScreenState extends State<SplashScreen>
                       height: 100,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(24),
-                        gradient: const LinearGradient(
-                          colors: [
-                            Color(0xFFFF0080),
-                            Color(0xFFFF8C00),
-                            Color(0xFFFFE600),
-                            Color(0xFF00FF88),
-                            Color(0xFF00CFFF),
-                            Color(0xFF7C4DFF),
-                            Color(0xFFFF0080),
-                          ],
-                        ),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFFFF0080).withValues(alpha: 0.4),
+                            color: const Color(0xFF7C4DFF).withValues(alpha: 0.4),
                             blurRadius: 30,
                             spreadRadius: 5,
                           ),
                         ],
                       ),
-                      child: const Icon(Icons.photo_library_rounded, size: 52, color: Colors.white),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(16),
+                        child: Image.asset('assets/icon.png', width: 80, height: 80, fit: BoxFit.cover),
+                      ),
                     ),
                     const SizedBox(height: 24),
                     ShaderMask(

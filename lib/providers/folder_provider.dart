@@ -107,4 +107,12 @@ class FolderHistoryNotifier extends Notifier<List<String>> {
     await prefs.setStringList(key, files);
     debugPrint('FolderHistory.removeFile: \$folderName -> removed');
   }
+
+  /// Sync stored file list with actual existing files
+  Future<void> syncFilesForFolder(String folderName, List<String> existingPaths) async {
+    final prefs = await SharedPreferences.getInstance();
+    final key = 'folder_files_\$folderName';
+    await prefs.setStringList(key, existingPaths);
+    debugPrint('FolderHistory.sync: \$folderName -> \${existingPaths.length} files');
+  }
 }
