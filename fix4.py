@@ -1,4 +1,4 @@
-import 'dart:io';
+content = r"""import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_handler/share_handler.dart';
@@ -238,7 +238,6 @@ class _FolderDetailScreenState extends State<FolderDetailScreen> {
   }
 
   Future<void> _loadExistingFiles() async {
-    await widget.folderHistoryNotifier.migrateExistingFiles(widget.folderName);
     final paths = await widget.folderHistoryNotifier.getFilesForFolder(widget.folderName);
     final files = paths.map((p) => File(p)).where((f) => f.existsSync()).toList();
     debugPrint('LoadFiles: ${files.length} files found for ${widget.folderName}');
@@ -452,3 +451,7 @@ class _FolderDetailScreenState extends State<FolderDetailScreen> {
     );
   }
 }
+"""
+with open('lib/screens/folder_select_screen.dart', 'w', encoding='utf-8') as f:
+    f.write(content)
+print('Done - file rewritten completely')
