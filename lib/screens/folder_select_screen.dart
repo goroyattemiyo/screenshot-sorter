@@ -77,6 +77,132 @@ class _FolderSelectScreenState extends ConsumerState<FolderSelectScreen> {
     ).then((_) => _updateFolderCounts());
   }
 
+  Future<void> _showFolderOptions(String folderName) async {
+    final action = await showModalBottomSheet<String>(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.edit),
+              title: const Text('フォルダ名を変更'),
+              onTap: () => Navigator.pop(context, 'rename'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.delete, color: Colors.red),
+              title: const Text('フォルダを削除', style: TextStyle(color: Colors.red)),
+              onTap: () => Navigator.pop(context, 'delete'),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (action == 'rename') {
+      await _renameFolder(folderName);
+    } else if (action == 'delete') {
+      await _deleteFolder(folderName);
+    }
+  }
+
+  Future<void> _renameFolder(String oldName) async {
+    _newFolderController.text = oldName;
+    final newName = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('フォルダ名を変更'),
+        content: TextField(
+          controller: _newFolderController,
+          autofocus: true,
+          decoration: const InputDecoration(
+            hintText: '新しいフォルダ名',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('キャンセル'),
+          ),
+          FilledButton(
+            onPressed: () {
+              final name = _newFolderController.text.trim();
+              if (name.isNotEmpty && name != oldName) Navigator.pop(context, name);
+            },
+            child: const Text('変更'),
+          ),
+        ],
+      ),
+    );
+    if (newName != null && newName.isNotEmpty) {
+      try {
+        final oldDir = Directory('/storage/emulated/0/Pictures/$oldName');
+        final newDir = Directory('/storage/emulated/0/Pictures/$newName');
+        if (oldDir.existsSync()) {
+          await oldDir.rename(newDir.path);
+        }
+        final notifier = ref.read(folderHistoryProvider.notifier);
+        final oldFiles = await notifier.getFilesForFolder(oldName);
+        final newFiles = oldFiles.map((p) => p.replaceAll(oldName, newName)).toList();
+        await notifier.syncFilesForFolder(newName, newFiles);
+        await notifier.syncFilesForFolder(oldName, []);
+        await notifier.remove(oldName);
+        await notifier.use(newName);
+        await _updateFolderCounts();
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('名前変更に失敗: $e')),
+          );
+        }
+      }
+    }
+  }
+
+  Future<void> _deleteFolder(String folderName) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('フォルダを削除'),
+        content: Text('「$folderName」とその中の画像をすべて削除しますか？\nこの操作は取り消せません。'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('キャンセル'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('削除'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true) {
+      try {
+        final dir = Directory('/storage/emulated/0/Pictures/$folderName');
+        if (dir.existsSync()) {
+          await dir.delete(recursive: true);
+        }
+        final notifier = ref.read(folderHistoryProvider.notifier);
+        await notifier.syncFilesForFolder(folderName, []);
+        await notifier.remove(folderName);
+        await _updateFolderCounts();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('「$folderName」を削除しました')),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('削除に失敗: $e')),
+          );
+        }
+      }
+    }
+  }
+
   Future<void> _showNewFolderDialog() async {
     _newFolderController.clear();
     final folderName = await showDialog<String>(
@@ -186,6 +312,7 @@ class _FolderSelectScreenState extends ConsumerState<FolderSelectScreen> {
                         subtitle: Text('$count 枚', style: const TextStyle(fontSize: 12, color: Colors.grey)),
                         trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                         onTap: () => _openFolderDetail(folder),
+                        onLongPress: () => _showFolderOptions(folder),
                       );
                     },
                   ),
