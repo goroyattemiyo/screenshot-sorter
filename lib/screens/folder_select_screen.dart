@@ -33,8 +33,13 @@ class _FolderSelectScreenState extends ConsumerState<FolderSelectScreen> {
     final notifier = ref.read(folderHistoryProvider.notifier);
     final counts = <String, int>{};
     for (final folder in folders) {
-      final files = await notifier.getFilesForFolder(folder);
-      counts[folder] = files.length;
+      final paths = await notifier.getFilesForFolder(folder);
+      final existing = paths.where((p) => File(p).existsSync()).toList();
+      if (existing.length != paths.length) {
+        await notifier.syncFilesForFolder(folder, existing);
+        debugPrint('CountSync: $folder pruned ${paths.length} -> ${existing.length}');
+      }
+      counts[folder] = existing.length;
     }
     if (mounted) setState(() => _folderCounts = counts);
   }
@@ -107,6 +112,12 @@ class _FolderSelectScreenState extends ConsumerState<FolderSelectScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen(sharedMediaProvider, (previous, next) {
+      if (next != null && next != previous) {
+        setState(() => _alreadySaved = false);
+        _updateFolderCounts();
+      }
+    });
     final media = ref.watch(sharedMediaProvider);
     final folders = ref.watch(folderHistoryProvider);
     final hue = ref.watch(themeHueProvider);
@@ -247,7 +258,7 @@ class _FolderSelectScreenState extends ConsumerState<FolderSelectScreen> {
   }
 }
 
-class FolderDetailScreen extends StatefulWidget {
+class FolderDetailScreen extends ConsumerStatefulWidget {
   final String folderName;
   final String? newImagePath;
   final bool alreadySaved;
@@ -266,12 +277,13 @@ class FolderDetailScreen extends StatefulWidget {
   });
 
   @override
-  State<FolderDetailScreen> createState() => _FolderDetailScreenState();
+  ConsumerState<FolderDetailScreen> createState() => _FolderDetailScreenState();
 }
 
-class _FolderDetailScreenState extends State<FolderDetailScreen> {
+class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
   late bool _saved;
   bool _saving = false;
+  String? _currentNewImagePath;
   List<File> _existingFiles = [];
   int? _viewingIndex;
   late PageController _pageController;
@@ -280,6 +292,7 @@ class _FolderDetailScreenState extends State<FolderDetailScreen> {
   void initState() {
     super.initState();
     _saved = widget.alreadySaved;
+    _currentNewImagePath = widget.newImagePath;
     _pageController = PageController();
     _loadExistingFiles();
   }
@@ -314,7 +327,7 @@ class _FolderDetailScreenState extends State<FolderDetailScreen> {
     setState(() => _saving = true);
     try {
       final savedPath = await ImageSaveService.save(
-        sourcePath: widget.newImagePath!,
+        sourcePath: _currentNewImagePath!,
         folderName: widget.folderName,
       );
       await widget.folderHistoryNotifier.use(widget.folderName);
@@ -403,6 +416,18 @@ class _FolderDetailScreenState extends State<FolderDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen(sharedMediaProvider, (previous, next) {
+      if (next != null && next != previous && (next.attachments?.isNotEmpty ?? false)) {
+        final newPath = next.attachments!.first?.path;
+        if (newPath != null && newPath != _currentNewImagePath) {
+          setState(() {
+            _currentNewImagePath = newPath;
+            _saved = false;
+            _saving = false;
+          });
+        }
+      }
+    });
     if (_viewingIndex != null) return _buildImageViewer();
     return _buildMainView();
   }
@@ -412,7 +437,7 @@ class _FolderDetailScreenState extends State<FolderDetailScreen> {
       appBar: AppBar(title: Text(widget.folderName), centerTitle: true),
       body: Column(
         children: [
-          if (!_saved && widget.newImagePath != null)
+          if (!_saved && _currentNewImagePath != null)
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(12),
@@ -426,7 +451,7 @@ class _FolderDetailScreenState extends State<FolderDetailScreen> {
                     borderRadius: BorderRadius.circular(8),
                     child: ConstrainedBox(
                       constraints: const BoxConstraints(maxHeight: 200),
-                      child: Image.file(File(widget.newImagePath!), width: double.infinity, fit: BoxFit.contain,
+                      child: Image.file(File(_currentNewImagePath!), width: double.infinity, fit: BoxFit.contain,
                         errorBuilder: (context, error, stackTrace) => const Icon(Icons.broken_image, size: 64)),
                     ),
                   ),
@@ -477,7 +502,7 @@ class _FolderDetailScreenState extends State<FolderDetailScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: (_saved || widget.newImagePath == null) ? null : SafeArea(
+      bottomNavigationBar: (_saved || _currentNewImagePath == null) ? null : SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: FilledButton.icon(
