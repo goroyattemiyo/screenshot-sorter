@@ -53,71 +53,78 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0D0D1A),
-      body: Center(
-        child: ListenableBuilder(
-          listenable: _controller,
-          builder: (context, child) {
-            return Opacity(
-              opacity: _fadeIn.value,
-              child: Transform.scale(
-                scale: _scale.value,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: 100,
-                      height: 100,
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color(0xFFFFF5F5),
+              Color(0xFFFCE4EC),
+              Color(0xFFF3E5F5),
+            ],
+          ),
+        ),
+        child: Center(
+          child: ListenableBuilder(
+            listenable: _controller,
+            builder: (context, child) {
+              return Opacity(
+                opacity: _fadeIn.value,
+                child: Transform.scale(
+                  scale: _scale.value,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                      width: 120,
+                      height: 120,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(24),
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color(0xFF7C4DFF).withValues(alpha: 0.4),
-                            blurRadius: 30,
-                            spreadRadius: 5,
-                          ),
-                        ],
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(16),
-                        child: Image.asset('assets/icon.png', width: 80, height: 80, fit: BoxFit.cover),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    ShaderMask(
-                      shaderCallback: (bounds) => const LinearGradient(
-                        colors: [
-                          Color(0xFFFF0080),
-                          Color(0xFFFF8C00),
-                          Color(0xFFFFE600),
-                          Color(0xFF00FF88),
-                          Color(0xFF00CFFF),
-                          Color(0xFF7C4DFF),
-                        ],
-                      ).createShader(bounds),
-                      child: const Text(
-                        'Screenshot Sorter',
-                        style: TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          letterSpacing: 1.2,
+                        gradient: const LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [Color(0xFFFFF5F5), Color(0xFFFCE4EC)],
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'スクショを瞬時に整理',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.white.withValues(alpha: 0.6),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(24),
+                        child: Image.asset('assets/icon.png', width: 120, height: 120, fit: BoxFit.cover),
                       ),
                     ),
-                  ],
+                      const SizedBox(height: 32),
+                      ShaderMask(
+                        shaderCallback: (bounds) => const LinearGradient(
+                          colors: [
+                            Color(0xFFB76E79),
+                            Color(0xFFE8A0BF),
+                            Color(0xFFC8A2C8),
+                          ],
+                        ).createShader(bounds),
+                        child: const Text(
+                          'Screenshot Sorter',
+                          style: TextStyle(
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                            letterSpacing: 1.2,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        'スクショを瞬時に整理',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Color(0xFFB76E79),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            );
-          },
+              );
+            },
+          ),
         ),
       ),
     );
