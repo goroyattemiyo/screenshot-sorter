@@ -5,6 +5,7 @@ import 'package:share_handler/share_handler.dart';
 import '../providers/share_provider.dart';
 import '../providers/folder_provider.dart';
 import '../providers/theme_provider.dart';
+import '../providers/brightness_provider.dart';
 import '../services/image_save_service.dart';
 
 class FolderSelectScreen extends ConsumerStatefulWidget {
@@ -127,6 +128,13 @@ class _FolderSelectScreenState extends ConsumerState<FolderSelectScreen> {
       appBar: AppBar(
         title: const Text('保存先フォルダを選択'),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: Icon(ref.watch(brightnessProvider) ? Icons.light_mode : Icons.dark_mode),
+            tooltip: ref.watch(brightnessProvider) ? 'ライトモードへ' : 'ダークモードへ',
+            onPressed: () => ref.read(brightnessProvider.notifier).toggle(),
+          ),
+        ],
       ),
       body: Column(
         children: [

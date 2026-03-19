@@ -4,6 +4,7 @@ import 'screens/splash_screen.dart';
 import 'screens/folder_select_screen.dart';
 import 'providers/share_provider.dart';
 import 'providers/theme_provider.dart';
+import 'providers/brightness_provider.dart';
 
 void main() {
   runApp(const ProviderScope(child: ScreenshotSorterApp()));
@@ -23,18 +24,21 @@ class _ScreenshotSorterAppState extends ConsumerState<ScreenshotSorterApp> {
     Future.microtask(() async {
       ref.read(sharedMediaProvider.notifier).init();
       await ref.read(themeHueProvider.notifier).load();
+      await ref.read(brightnessProvider.notifier).load();
+      ref.read(brightnessProvider.notifier).startListening();
     });
   }
 
   @override
   Widget build(BuildContext context) {
     final hue = ref.watch(themeHueProvider);
+    final isDark = ref.watch(brightnessProvider);
     return MaterialApp(
       title: 'S³',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorSchemeSeed: HSLColor.fromAHSL(1.0, hue, 0.8, 0.5).toColor(),
-        brightness: Brightness.dark,
+        brightness: isDark ? Brightness.dark : Brightness.light,
         useMaterial3: true,
       ),
       home: SplashScreen(
