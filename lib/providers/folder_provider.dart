@@ -60,6 +60,7 @@ class FolderHistoryNotifier extends Notifier<List<String>> {
   }
 
   /// Migrate: scan actual folder and register any unrecorded files
+  /// Note: Scoped Storage (Android 11+) limits access to files created by this app only
   Future<void> migrateExistingFiles(String folderName) async {
     final prefs = await SharedPreferences.getInstance();
     final key = 'folder_files_$folderName';

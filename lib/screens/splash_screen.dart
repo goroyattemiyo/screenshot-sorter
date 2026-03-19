@@ -55,8 +55,8 @@ class _SplashScreenState extends State<SplashScreen>
     return Scaffold(
       backgroundColor: const Color(0xFF0D0D1A),
       body: Center(
-        child: AnimatedBuilder(
-          animation: _controller,
+        child: ListenableBuilder(
+          listenable: _controller,
           builder: (context, child) {
             return Opacity(
               opacity: _fadeIn.value,

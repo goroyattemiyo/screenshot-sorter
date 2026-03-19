@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'screens/splash_screen.dart';
 import 'screens/folder_select_screen.dart';
 import 'providers/share_provider.dart';
-import 'providers/folder_provider.dart';
 import 'providers/theme_provider.dart';
 
 void main() {
@@ -23,7 +22,6 @@ class _ScreenshotSorterAppState extends ConsumerState<ScreenshotSorterApp> {
     super.initState();
     Future.microtask(() async {
       ref.read(sharedMediaProvider.notifier).init();
-      await ref.read(folderHistoryProvider.notifier).load();
       await ref.read(themeHueProvider.notifier).load();
     });
   }
