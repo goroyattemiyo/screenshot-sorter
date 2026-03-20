@@ -102,7 +102,7 @@ class _SplashScreenState extends State<SplashScreen>
                           ],
                         ).createShader(bounds),
                         child: const Text(
-                          'Screenshot Sorter',
+                          'S\u00B3',
                           style: TextStyle(
                             fontSize: 28,
                             fontWeight: FontWeight.bold,

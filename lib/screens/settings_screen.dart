@@ -1,0 +1,433 @@
+import 'dart:io';
+import 'dart:ui';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
+import '../providers/theme_provider.dart';
+import '../providers/brightness_provider.dart';
+import '../providers/background_provider.dart';
+
+class SettingsScreen extends ConsumerStatefulWidget {
+  const SettingsScreen({super.key});
+
+  @override
+  ConsumerState<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends ConsumerState<SettingsScreen> {
+  final _picker = ImagePicker();
+
+  Future<void> _pickBackgroundImage() async {
+    final picked = await _picker.pickImage(source: ImageSource.gallery, maxWidth: 1920, maxHeight: 1920, imageQuality: 80);
+    if (picked != null) {
+      // Copy to app-internal storage for persistence
+      final appDir = Directory('/storage/emulated/0/Pictures/.s3_settings');
+      if (!appDir.existsSync()) appDir.createSync(recursive: true);
+      final dest = '${appDir.path}/bg_${DateTime.now().millisecondsSinceEpoch}.jpg';
+      await File(picked.path).copy(dest);
+      ref.read(backgroundProvider.notifier).setBackground(dest);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final hue = ref.watch(themeHueProvider);
+    final isDark = ref.watch(brightnessProvider);
+    final bgPath = ref.watch(backgroundProvider);
+    final bgBlur = ref.watch(bgBlurProvider);
+    final bgOpacity = ref.watch(bgOpacityProvider);
+    final bgOverlayHue = ref.watch(bgOverlayHueProvider);
+    final brightnessNotifier = ref.read(brightnessProvider.notifier);
+    final accentColor = HSLColor.fromAHSL(1, hue, 0.6, isDark ? 0.7 : 0.4).toColor();
+    final cardColor = isDark ? Colors.white.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.04);
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Settings'),
+        centerTitle: true,
+      ),
+      body: Stack(
+        children: [
+          // Background image with blur
+          if (bgPath != null && File(bgPath).existsSync())
+            Positioned.fill(
+              child: ImageFiltered(
+                imageFilter: ImageFilter.blur(sigmaX: bgBlur, sigmaY: bgBlur),
+                child: Image.file(
+                  File(bgPath),
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, e, s) => const SizedBox.shrink(),
+                ),
+              ),
+            ),
+          if (bgPath != null)
+            Positioned.fill(
+              child: Container(
+                color: bgOverlayHue < 0 ? (isDark ? Colors.black.withValues(alpha: bgOpacity) : Colors.white.withValues(alpha: bgOpacity)) : HSLColor.fromAHSL(bgOpacity, bgOverlayHue, 0.4, 0.5).toColor(),
+              ),
+            ),
+          // Content
+          SafeArea(
+            child: ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                // ---- Background Image ----
+                _sectionTitle('Background Image', accentColor),
+                const SizedBox(height: 8),
+                Container(
+                  decoration: BoxDecoration(
+                    color: cardColor,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    children: [
+                      // Preview
+                      GestureDetector(
+                        onTap: _pickBackgroundImage,
+                        child: Container(
+                          height: 120,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: accentColor.withValues(alpha: 0.3), width: 2),
+                            image: (bgPath != null && File(bgPath).existsSync())
+                                ? DecorationImage(
+                                    image: FileImage(File(bgPath)),
+                                    fit: BoxFit.cover,
+                                  )
+                                : null,
+                          ),
+                          child: (bgPath == null || !File(bgPath).existsSync())
+                              ? Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(Icons.add_photo_alternate_outlined, size: 36, color: accentColor),
+                                    const SizedBox(height: 8),
+                                    Text('Tap to select', style: TextStyle(color: accentColor, fontSize: 13)),
+                                  ],
+                                )
+                              : null,
+                        ),
+                      ),
+                      if (bgPath != null) ...[
+                        const SizedBox(height: 12),
+                        SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton.icon(
+                            onPressed: () => ref.read(backgroundProvider.notifier).clearBackground(),
+                            icon: const Icon(Icons.close, size: 18),
+                            label: const Text('Remove background'),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: Colors.redAccent,
+                              side: const BorderSide(color: Colors.redAccent),
+                            ),
+                          ),
+                        ),
+                      ],
+                      // ---- Blur / Overlay / Color sliders ----
+                      const SizedBox(height: 16),
+                      const Divider(),
+                      const SizedBox(height: 8),
+                      // Blur
+                      Row(
+                        children: [
+                          const Icon(Icons.blur_on, size: 18),
+                          const SizedBox(width: 8),
+                          const Text('Blur', style: TextStyle(fontSize: 13)),
+                          Expanded(
+                            child: Slider(
+                              value: bgBlur,
+                              min: 0,
+                              max: 30,
+                              onChanged: (v) => ref.read(bgBlurProvider.notifier).set(v),
+                            ),
+                          ),
+                          SizedBox(width: 32, child: Text(bgBlur.toInt().toString(), textAlign: TextAlign.right, style: const TextStyle(fontSize: 12))),
+                        ],
+                      ),
+                      // Overlay opacity
+                      Row(
+                        children: [
+                          const Icon(Icons.opacity, size: 18),
+                          const SizedBox(width: 8),
+                          const Text('Overlay', style: TextStyle(fontSize: 13)),
+                          Expanded(
+                            child: Slider(
+                              value: bgOpacity,
+                              min: 0,
+                              max: 0.8,
+                              onChanged: (v) => ref.read(bgOpacityProvider.notifier).set(v),
+                            ),
+                          ),
+                          SizedBox(width: 40, child: Text('${(bgOpacity * 100).toInt()}%', textAlign: TextAlign.right, style: const TextStyle(fontSize: 12))),
+                        ],
+                      ),
+                      // Overlay color
+                      Row(
+                        children: [
+                          const Icon(Icons.color_lens, size: 18),
+                          const SizedBox(width: 8),
+                          const Text('Color', style: TextStyle(fontSize: 13)),
+                          const SizedBox(width: 8),
+                          GestureDetector(
+                            onTap: () => ref.read(bgOverlayHueProvider.notifier).set(-1),
+                            child: Container(
+                              width: 28, height: 28,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                gradient: const LinearGradient(colors: [Colors.white, Colors.black]),
+                                border: bgOverlayHue < 0 ? Border.all(color: accentColor, width: 2) : null,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: Slider(
+                              value: bgOverlayHue < 0 ? 0 : bgOverlayHue,
+                              min: 0,
+                              max: 360,
+                              activeColor: bgOverlayHue < 0 ? Colors.grey : HSLColor.fromAHSL(1, bgOverlayHue, 0.6, 0.6).toColor(),
+                              onChanged: (v) => ref.read(bgOverlayHueProvider.notifier).set(v),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 24),
+
+                // ---- Theme Color ----
+                _sectionTitle('Theme Color', accentColor),
+                const SizedBox(height: 8),
+                Container(
+                  decoration: BoxDecoration(
+                    color: cardColor,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    children: [
+                      // Presets
+                      Wrap(
+                        spacing: 10,
+                        runSpacing: 10,
+                        children: themePresets.map((preset) {
+                          final presetColor = HSLColor.fromAHSL(1, preset.hue, 0.6, 0.6).toColor();
+                          final isSelected = (hue - preset.hue).abs() < 5;
+                          return GestureDetector(
+                            onTap: () => ref.read(themeHueProvider.notifier).setHue(preset.hue),
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              width: isSelected ? 64 : 56,
+                              height: isSelected ? 64 : 56,
+                              decoration: BoxDecoration(
+                                color: presetColor,
+                                shape: BoxShape.circle,
+                                border: isSelected
+                                    ? Border.all(color: Colors.white, width: 3)
+                                    : null,
+                                boxShadow: isSelected
+                                    ? [BoxShadow(color: presetColor.withValues(alpha: 0.5), blurRadius: 12)]
+                                    : null,
+                              ),
+                              child: Center(
+                                child: Text(
+                                  preset.emoji,
+                                  style: const TextStyle(fontSize: 20),
+                                ),
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                      const SizedBox(height: 16),
+                      // Custom slider
+                      Row(
+                        children: [
+                          const Text('Custom', style: TextStyle(fontSize: 13)),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: SliderTheme(
+                              data: SliderThemeData(
+                                trackHeight: 8,
+                                activeTrackColor: HSLColor.fromAHSL(1, hue, 0.7, 0.6).toColor(),
+                                inactiveTrackColor: isDark ? Colors.white12 : Colors.black12,
+                                thumbColor: HSLColor.fromAHSL(1, hue, 0.8, 0.65).toColor(),
+                                overlayColor: HSLColor.fromAHSL(0.2, hue, 0.8, 0.5).toColor(),
+                                thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 10),
+                              ),
+                              child: Slider(
+                                value: hue,
+                                min: 0,
+                                max: 360,
+                                onChanged: (v) => ref.read(themeHueProvider.notifier).setHue(v),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 24),
+
+                // ---- Display Mode ----
+                _sectionTitle('Display Mode', accentColor),
+                const SizedBox(height: 8),
+                Container(
+                  decoration: BoxDecoration(
+                    color: cardColor,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  padding: const EdgeInsets.all(8),
+                  child: Column(
+                    children: [
+                      _modeRadio(
+                        icon: Icons.brightness_auto,
+                        label: 'Auto (Light Sensor)',
+                        subtitle: 'Switches based on ambient light',
+                        value: 'auto',
+                        groupValue: brightnessNotifier.isAutoMode ? 'auto' : (isDark ? 'dark' : 'light'),
+                        accentColor: accentColor,
+                        onTap: () {
+                          brightnessNotifier.setAutoMode(true);
+                        },
+                      ),
+                      _modeRadio(
+                        icon: Icons.light_mode,
+                        label: 'Light',
+                        subtitle: 'Always light background',
+                        value: 'light',
+                        groupValue: brightnessNotifier.isAutoMode ? 'auto' : (isDark ? 'dark' : 'light'),
+                        accentColor: accentColor,
+                        onTap: () {
+                          brightnessNotifier.setAutoMode(false);
+                          if (isDark) brightnessNotifier.toggle();
+                        },
+                      ),
+                      _modeRadio(
+                        icon: Icons.dark_mode,
+                        label: 'Dark',
+                        subtitle: 'Always dark background',
+                        value: 'dark',
+                        groupValue: brightnessNotifier.isAutoMode ? 'auto' : (isDark ? 'dark' : 'light'),
+                        accentColor: accentColor,
+                        onTap: () {
+                          brightnessNotifier.setAutoMode(false);
+                          if (!isDark) brightnessNotifier.toggle();
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 24),
+
+                // ---- App Info ----
+                _sectionTitle('About', accentColor),
+                const SizedBox(height: 8),
+                Container(
+                  decoration: BoxDecoration(
+                    color: cardColor,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: Image.asset('assets/icon.png', width: 48, height: 48),
+                          ),
+                          const SizedBox(width: 12),
+                          const Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('S\u00B3 - Screenshot Smart Sorter', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                              SizedBox(height: 2),
+                              Text('Version 1.2.0\nS\u00B3 = Screenshot Smart Sorter', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                            ],
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      SizedBox(
+                        width: double.infinity,
+                        child: Text(
+                          'MIT License',
+                          style: TextStyle(fontSize: 12, color: Colors.grey.withValues(alpha: 0.7)),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 32),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _sectionTitle(String title, Color color) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 4),
+      child: Text(
+        title,
+        style: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+          color: color,
+          letterSpacing: 0.5,
+        ),
+      ),
+    );
+  }
+
+  Widget _modeRadio({
+    required IconData icon,
+    required String label,
+    required String subtitle,
+    required String value,
+    required String groupValue,
+    required Color accentColor,
+    required VoidCallback onTap,
+  }) {
+    final isSelected = value == groupValue;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+        child: Row(
+          children: [
+            Icon(icon, color: isSelected ? accentColor : Colors.grey, size: 22),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(label, style: TextStyle(fontWeight: isSelected ? FontWeight.bold : FontWeight.normal, fontSize: 14)),
+                  Text(subtitle, style: const TextStyle(fontSize: 11, color: Colors.grey)),
+                ],
+              ),
+            ),
+            Icon(
+              isSelected ? Icons.radio_button_checked : Icons.radio_button_unchecked,
+              color: isSelected ? accentColor : Colors.grey,
+              size: 20,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

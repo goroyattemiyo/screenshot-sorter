@@ -1,7 +1,7 @@
 name: screenshot_sorter
 description: "A new Flutter project."
 publish_to: 'none'
-version: 1.0.0+1
+version: 1.2.0+2
 
 environment:
   sdk: ^3.11.1
@@ -15,6 +15,7 @@ dependencies:
   shared_preferences: ^2.5.4
   path: ^1.9.1
   light_sensor: ^3.0.2
+  image_picker: ^1.1.2
 
 dev_dependencies:
   flutter_test:

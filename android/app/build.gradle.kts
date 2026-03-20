@@ -24,7 +24,7 @@ android {
     }
 
     kotlinOptions {
-        jvmTarget = "17"
+        jvmTarget = JavaVersion.VERSION_17.toString()
     }
 
     defaultConfig {
@@ -37,13 +37,10 @@ android {
 
     signingConfigs {
         create("release") {
-            val props = java.util.Properties()
-            val propsFile = rootProject.file("app/key.properties")
-            if (propsFile.exists()) props.load(propsFile.inputStream())
-            storeFile = file(props.getProperty("storeFile") ?: "upload-keystore.jks")
-            storePassword = props.getProperty("storePassword") ?: ""
-            keyAlias = props.getProperty("keyAlias") ?: ""
-            keyPassword = props.getProperty("keyPassword") ?: ""
+            keyAlias = keystoreProperties.getProperty("keyAlias") ?: "upload"
+            keyPassword = keystoreProperties.getProperty("keyPassword") ?: ""
+            storeFile = file(keystoreProperties.getProperty("storeFile") ?: "upload-keystore.jks")
+            storePassword = keystoreProperties.getProperty("storePassword") ?: ""
         }
     }
 

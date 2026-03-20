@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -5,8 +6,10 @@ import 'package:share_handler/share_handler.dart';
 import '../providers/share_provider.dart';
 import '../providers/folder_provider.dart';
 import '../providers/theme_provider.dart';
-import '../providers/brightness_provider.dart';
 import '../services/image_save_service.dart';
+import '../providers/background_provider.dart';
+import '../providers/brightness_provider.dart';
+import 'settings_screen.dart';
 
 class FolderSelectScreen extends ConsumerStatefulWidget {
   const FolderSelectScreen({super.key});
@@ -249,6 +252,11 @@ class _FolderSelectScreenState extends ConsumerState<FolderSelectScreen> {
     final folders = ref.watch(folderHistoryProvider);
     final hue = ref.watch(themeHueProvider);
     final hasImage = media != null && (media.attachments?.isNotEmpty ?? false);
+    final bgPath = ref.watch(backgroundProvider);
+    final isDark = ref.watch(brightnessProvider);
+    final bgBlur = ref.watch(bgBlurProvider);
+    final bgOpacity = ref.watch(bgOpacityProvider);
+    final bgOverlayHue = ref.watch(bgOverlayHueProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -256,14 +264,33 @@ class _FolderSelectScreenState extends ConsumerState<FolderSelectScreen> {
         centerTitle: true,
         actions: [
           IconButton(
-            icon: Icon(ref.watch(brightnessProvider) ? Icons.light_mode : Icons.dark_mode),
-            tooltip: ref.watch(brightnessProvider) ? 'ライトモードへ' : 'ダークモードへ',
-            onPressed: () => ref.read(brightnessProvider.notifier).toggle(),
+            icon: const Icon(Icons.settings),
+            tooltip: '設定',
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const SettingsScreen()),
+            ),
           ),
         ],
       ),
-      body: Column(
+      body: Stack(
         children: [
+          if (bgPath != null && File(bgPath).existsSync()) ...[
+            Positioned.fill(
+              child: ImageFiltered(
+                imageFilter: ImageFilter.blur(sigmaX: bgBlur, sigmaY: bgBlur),
+                child: Image.file(File(bgPath), fit: BoxFit.cover,
+                  errorBuilder: (_, e, s) => const SizedBox.shrink()),
+              ),
+            ),
+            Positioned.fill(
+              child: Container(
+                color: bgOverlayHue < 0 ? (isDark ? Colors.black.withValues(alpha: bgOpacity) : Colors.white.withValues(alpha: bgOpacity)) : HSLColor.fromAHSL(bgOpacity, bgOverlayHue, 0.4, 0.5).toColor(),
+              ),
+            ),
+          ],
+          Column(
+            children: [
           if (hasImage && !_alreadySaved) _buildPreview(media),
           if (_alreadySaved)
             Container(
@@ -317,36 +344,8 @@ class _FolderSelectScreenState extends ConsumerState<FolderSelectScreen> {
                     },
                   ),
           ),
-          SafeArea(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                color: Colors.black26,
-                border: Border(top: BorderSide(color: HSLColor.fromAHSL(0.3, hue, 0.8, 0.5).toColor())),
-              ),
-              child: Row(
-                children: [
-                  Icon(Icons.palette, size: 20, color: HSLColor.fromAHSL(1, hue, 0.8, 0.6).toColor()),
-                  Expanded(
-                    child: SliderTheme(
-                      data: SliderThemeData(
-                        trackHeight: 6,
-                        activeTrackColor: HSLColor.fromAHSL(1, hue, 0.8, 0.5).toColor(),
-                        inactiveTrackColor: Colors.white24,
-                        thumbColor: HSLColor.fromAHSL(1, hue, 0.9, 0.6).toColor(),
-                        overlayColor: HSLColor.fromAHSL(0.3, hue, 0.8, 0.5).toColor(),
-                      ),
-                      child: Slider(
-                        value: hue,
-                        min: 0,
-                        max: 360,
-                        onChanged: (v) => ref.read(themeHueProvider.notifier).setHue(v),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+
+          ],
           ),
         ],
       ),
@@ -568,9 +567,33 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
   }
 
   Widget _buildMainView() {
+    final bgPath = ref.watch(backgroundProvider);
+    final isDark = ref.watch(brightnessProvider);
+    final bgBlur = ref.watch(bgBlurProvider);
+    final bgOpacity = ref.watch(bgOpacityProvider);
+    final bgOverlayHue = ref.watch(bgOverlayHueProvider);
     return Scaffold(
-      appBar: AppBar(title: Text(widget.folderName), centerTitle: true),
-      body: Column(
+      appBar: AppBar(
+        title: Text(widget.folderName),
+        centerTitle: true,
+      ),
+      body: Stack(
+        children: [
+          if (bgPath != null && File(bgPath).existsSync()) ...[
+            Positioned.fill(
+              child: ImageFiltered(
+                imageFilter: ImageFilter.blur(sigmaX: bgBlur, sigmaY: bgBlur),
+                child: Image.file(File(bgPath), fit: BoxFit.cover,
+                  errorBuilder: (_, e, s) => const SizedBox.shrink()),
+              ),
+            ),
+            Positioned.fill(
+              child: Container(
+                color: bgOverlayHue < 0 ? (isDark ? Colors.black.withValues(alpha: bgOpacity) : Colors.white.withValues(alpha: bgOpacity)) : HSLColor.fromAHSL(bgOpacity, bgOverlayHue, 0.4, 0.5).toColor(),
+              ),
+            ),
+          ],
+          Column(
         children: [
           if (!_saved && _currentNewImagePath != null)
             Container(
@@ -635,6 +658,8 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
                   ),
             ),
           ),
+        ],
+      ),
         ],
       ),
       bottomNavigationBar: (_saved || _currentNewImagePath == null) ? null : SafeArea(
