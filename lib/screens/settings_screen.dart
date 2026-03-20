@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import '../providers/theme_provider.dart';
 import '../providers/brightness_provider.dart';
 import '../providers/background_provider.dart';
+import '../services/google_drive_service.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -43,7 +44,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Settings'),
+        title: const Text('設定'),
         centerTitle: true,
       ),
       body: Stack(
@@ -72,7 +73,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               padding: const EdgeInsets.all(16),
               children: [
                 // ---- Background Image ----
-                _sectionTitle('Background Image', accentColor),
+                _sectionTitle('背景画像', accentColor),
                 const SizedBox(height: 8),
                 Container(
                   decoration: BoxDecoration(
@@ -104,7 +105,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                   children: [
                                     Icon(Icons.add_photo_alternate_outlined, size: 36, color: accentColor),
                                     const SizedBox(height: 8),
-                                    Text('Tap to select', style: TextStyle(color: accentColor, fontSize: 13)),
+                                    Text('タップして選択', style: TextStyle(color: accentColor, fontSize: 13)),
                                   ],
                                 )
                               : null,
@@ -117,7 +118,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           child: OutlinedButton.icon(
                             onPressed: () => ref.read(backgroundProvider.notifier).clearBackground(),
                             icon: const Icon(Icons.close, size: 18),
-                            label: const Text('Remove background'),
+                            label: const Text('背景を削除'),
                             style: OutlinedButton.styleFrom(
                               foregroundColor: Colors.redAccent,
                               side: const BorderSide(color: Colors.redAccent),
@@ -134,7 +135,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         children: [
                           const Icon(Icons.blur_on, size: 18),
                           const SizedBox(width: 8),
-                          const Text('Blur', style: TextStyle(fontSize: 13)),
+                          const Text('ぼかし', style: TextStyle(fontSize: 13)),
                           Expanded(
                             child: Slider(
                               value: bgBlur,
@@ -151,7 +152,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         children: [
                           const Icon(Icons.opacity, size: 18),
                           const SizedBox(width: 8),
-                          const Text('Overlay', style: TextStyle(fontSize: 13)),
+                          const Text('オーバーレイ', style: TextStyle(fontSize: 13)),
                           Expanded(
                             child: Slider(
                               value: bgOpacity,
@@ -168,7 +169,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         children: [
                           const Icon(Icons.color_lens, size: 18),
                           const SizedBox(width: 8),
-                          const Text('Color', style: TextStyle(fontSize: 13)),
+                          const Text('色', style: TextStyle(fontSize: 13)),
                           const SizedBox(width: 8),
                           GestureDetector(
                             onTap: () => ref.read(bgOverlayHueProvider.notifier).set(-1),
@@ -200,7 +201,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 const SizedBox(height: 24),
 
                 // ---- Theme Color ----
-                _sectionTitle('Theme Color', accentColor),
+                _sectionTitle('テーマカラー', accentColor),
                 const SizedBox(height: 8),
                 Container(
                   decoration: BoxDecoration(
@@ -247,7 +248,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       // Custom slider
                       Row(
                         children: [
-                          const Text('Custom', style: TextStyle(fontSize: 13)),
+                          const Text('カスタム', style: TextStyle(fontSize: 13)),
                           const SizedBox(width: 8),
                           Expanded(
                             child: SliderTheme(
@@ -276,7 +277,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 const SizedBox(height: 24),
 
                 // ---- Display Mode ----
-                _sectionTitle('Display Mode', accentColor),
+                _sectionTitle('表示モード', accentColor),
                 const SizedBox(height: 8),
                 Container(
                   decoration: BoxDecoration(
@@ -288,8 +289,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     children: [
                       _modeRadio(
                         icon: Icons.brightness_auto,
-                        label: 'Auto (Light Sensor)',
-                        subtitle: 'Switches based on ambient light',
+                        label: '自動（光量センサー）',
+                        subtitle: '周囲の明るさで自動切替',
                         value: 'auto',
                         groupValue: brightnessNotifier.isAutoMode ? 'auto' : (isDark ? 'dark' : 'light'),
                         accentColor: accentColor,
@@ -299,8 +300,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       ),
                       _modeRadio(
                         icon: Icons.light_mode,
-                        label: 'Light',
-                        subtitle: 'Always light background',
+                        label: 'ライト',
+                        subtitle: '常に明るい背景',
                         value: 'light',
                         groupValue: brightnessNotifier.isAutoMode ? 'auto' : (isDark ? 'dark' : 'light'),
                         accentColor: accentColor,
@@ -311,8 +312,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       ),
                       _modeRadio(
                         icon: Icons.dark_mode,
-                        label: 'Dark',
-                        subtitle: 'Always dark background',
+                        label: 'ダーク',
+                        subtitle: '常に暗い背景',
                         value: 'dark',
                         groupValue: brightnessNotifier.isAutoMode ? 'auto' : (isDark ? 'dark' : 'light'),
                         accentColor: accentColor,
@@ -327,8 +328,64 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
                 const SizedBox(height: 24),
 
+                // ---- Google Drive ----
+                _sectionTitle('Google Drive 連携', accentColor),
+                const SizedBox(height: 8),
+                Container(
+                  decoration: BoxDecoration(
+                    color: cardColor,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.cloud, size: 24),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              GoogleDriveService.isSignedIn
+                                  ? '${GoogleDriveService.currentUserEmail}'
+                                  : '未接続',
+                              style: const TextStyle(fontSize: 14),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      SizedBox(
+                        width: double.infinity,
+                        child: GoogleDriveService.isSignedIn
+                            ? OutlinedButton.icon(
+                                onPressed: () async {
+                                  await GoogleDriveService.signOut();
+                                  setState(() {});
+                                },
+                                icon: const Icon(Icons.logout, size: 18),
+                                label: const Text('切断'),
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: Colors.redAccent,
+                                  side: const BorderSide(color: Colors.redAccent),
+                                ),
+                              )
+                            : FilledButton.icon(
+                                onPressed: () async {
+                                  await GoogleDriveService.signIn();
+                                  setState(() {});
+                                },
+                                icon: const Icon(Icons.login, size: 18),
+                                label: const Text('Google Driveに接続'),
+                              ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 24),
+
                 // ---- App Info ----
-                _sectionTitle('About', accentColor),
+                _sectionTitle('アプリ情報', accentColor),
                 const SizedBox(height: 8),
                 Container(
                   decoration: BoxDecoration(
@@ -359,7 +416,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       SizedBox(
                         width: double.infinity,
                         child: Text(
-                          'MIT License',
+                          'MIT ライセンス',
                           style: TextStyle(fontSize: 12, color: Colors.grey.withValues(alpha: 0.7)),
                           textAlign: TextAlign.center,
                         ),

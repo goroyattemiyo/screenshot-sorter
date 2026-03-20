@@ -7,6 +7,8 @@ import '../providers/share_provider.dart';
 import '../providers/folder_provider.dart';
 import '../providers/theme_provider.dart';
 import '../services/image_save_service.dart';
+import '../services/google_drive_service.dart';
+import 'package:googleapis/drive/v3.dart' as drive;
 import '../providers/background_provider.dart';
 import '../providers/brightness_provider.dart';
 import 'settings_screen.dart';
@@ -566,6 +568,225 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
     return _buildMainView();
   }
 
+  Future<void> _uploadToDrive() async {
+    // Ensure signed in
+    if (!GoogleDriveService.isSignedIn) {
+      final api = await GoogleDriveService.signIn();
+      if (api == null) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Google Drive\u306b\u30b5\u30a4\u30f3\u30a4\u30f3\u3067\u304d\u307e\u305b\u3093\u3067\u3057\u305f')),
+          );
+        }
+        return;
+      }
+    }
+
+    // Show folder picker
+    if (!mounted) return;
+    final selectedFolder = await _showDriveFolderPicker();
+    if (selectedFolder == null) return;
+
+    final folderId = selectedFolder['id']!;
+    final folderPath = selectedFolder['path']!;
+
+    // Show progress
+    if (!mounted) return;
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('\u30a2\u30c3\u30d7\u30ed\u30fc\u30c9\u4e2d...'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const LinearProgressIndicator(),
+              const SizedBox(height: 12),
+              Text(folderPath, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+            ],
+          ),
+        );
+      },
+    );
+
+    final (uploaded, skipped, errors) = await GoogleDriveService.uploadToFolder(
+      folderId: folderId,
+      folderName: folderPath,
+      files: _existingFiles,
+      onProgress: (c, t) {},
+    );
+
+    if (mounted) {
+      Navigator.of(context).pop();
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          icon: Icon(
+            errors > 0 ? Icons.warning_amber : Icons.check_circle,
+            color: errors > 0 ? Colors.orange : Colors.green,
+            size: 48,
+          ),
+          title: const Text('\u30a2\u30c3\u30d7\u30ed\u30fc\u30c9\u5b8c\u4e86'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('\u4fdd\u5b58\u5148: $folderPath'),
+              const SizedBox(height: 12),
+              if (uploaded > 0) Text('\u2705 $uploaded\u4ef6 \u30a2\u30c3\u30d7\u30ed\u30fc\u30c9'),
+              if (skipped > 0) Text('\u23ed\ufe0f $skipped\u4ef6 \u30b9\u30ad\u30c3\u30d7\uff08\u30a2\u30c3\u30d7\u30ed\u30fc\u30c9\u6e08\u307f\uff09'),
+              if (errors > 0) Text('\u274c $errors\u4ef6 \u30a8\u30e9\u30fc', style: const TextStyle(color: Colors.red)),
+            ],
+          ),
+          actions: [
+            FilledButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
+  Future<Map<String, String>?> _showDriveFolderPicker() async {
+    String? currentParentId;
+    String currentPath = 'My Drive';
+    List<Map<String, String>> pathStack = [];
+
+    return showDialog<Map<String, String>>(
+      context: context,
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              title: Row(
+                children: [
+                  const Icon(Icons.folder, size: 20),
+                  const SizedBox(width: 8),
+                  Expanded(child: Text(currentPath, style: const TextStyle(fontSize: 14), overflow: TextOverflow.ellipsis)),
+                ],
+              ),
+              content: SizedBox(
+                width: double.maxFinite,
+                height: 350,
+                child: FutureBuilder<List<drive.File>>(
+                  future: GoogleDriveService.listFolders(parentId: currentParentId),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    final folders = snapshot.data ?? [];
+                    return Column(
+                      children: [
+                        // Back button
+                        if (pathStack.isNotEmpty)
+                          ListTile(
+                            leading: const Icon(Icons.arrow_back),
+                            title: const Text('\u623b\u308b'),
+                            dense: true,
+                            onTap: () {
+                              setDialogState(() {
+                                final prev = pathStack.removeLast();
+                                currentParentId = prev['id'];
+                                currentPath = prev['path']!;
+                              });
+                            },
+                          ),
+                        // New folder button
+                        ListTile(
+                          leading: const Icon(Icons.create_new_folder, color: Colors.blue),
+                          title: const Text('\u65b0\u3057\u3044\u30d5\u30a9\u30eb\u30c0\u3092\u4f5c\u6210'),
+                          dense: true,
+                          onTap: () async {
+                            final controller = TextEditingController(text: widget.folderName);
+                            final name = await showDialog<String>(
+                              context: context,
+                              builder: (ctx) => AlertDialog(
+                                title: const Text('\u65b0\u898f\u30d5\u30a9\u30eb\u30c0'),
+                                content: TextField(
+                                  controller: controller,
+                                  autofocus: true,
+                                  decoration: const InputDecoration(
+                                    hintText: '\u30d5\u30a9\u30eb\u30c0\u540d',
+                                    border: OutlineInputBorder(),
+                                  ),
+                                ),
+                                actions: [
+                                  TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('\u30ad\u30e3\u30f3\u30bb\u30eb')),
+                                  FilledButton(onPressed: () {
+                                    final n = controller.text.trim();
+                                    if (n.isNotEmpty) Navigator.pop(ctx, n);
+                                  }, child: const Text('\u4f5c\u6210')),
+                                ],
+                              ),
+                            );
+                            controller.dispose();
+                            if (name != null) {
+                              final created = await GoogleDriveService.createFolder(name, parentId: currentParentId);
+                              if (created != null && mounted) {
+                                Navigator.pop(dialogContext, {
+                                  'id': created.id!,
+                                  'path': '$currentPath / $name',
+                                });
+                              }
+                            }
+                          },
+                        ),
+                        const Divider(height: 1),
+                        // Folder list
+                        Expanded(
+                          child: folders.isEmpty
+                              ? const Center(child: Text('\u30d5\u30a9\u30eb\u30c0\u304c\u3042\u308a\u307e\u305b\u3093', style: TextStyle(color: Colors.grey)))
+                              : ListView.builder(
+                                  itemCount: folders.length,
+                                  itemBuilder: (context, index) {
+                                    final folder = folders[index];
+                                    return ListTile(
+                                      leading: const Icon(Icons.folder, color: Colors.amber),
+                                      title: Text(folder.name ?? ''),
+                                      trailing: const Icon(Icons.chevron_right, size: 18),
+                                      dense: true,
+                                      onTap: () {
+                                        setDialogState(() {
+                                          pathStack.add({'id': currentParentId ?? '', 'path': currentPath});
+                                          currentParentId = folder.id;
+                                          currentPath = '$currentPath / ${folder.name}';
+                                        });
+                                      },
+                                    );
+                                  },
+                                ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(dialogContext),
+                  child: const Text('\u30ad\u30e3\u30f3\u30bb\u30eb'),
+                ),
+                FilledButton.icon(
+                  onPressed: () {
+                    Navigator.pop(dialogContext, {
+                      'id': currentParentId ?? 'root',
+                      'path': currentPath,
+                    });
+                  },
+                  icon: const Icon(Icons.check, size: 18),
+                  label: const Text('\u3053\u3053\u306b\u30a2\u30c3\u30d7\u30ed\u30fc\u30c9'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
   Widget _buildMainView() {
     final bgPath = ref.watch(backgroundProvider);
     final isDark = ref.watch(brightnessProvider);
@@ -576,6 +797,13 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
       appBar: AppBar(
         title: Text(widget.folderName),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.cloud_upload_outlined),
+            tooltip: 'Google Driveにアップロード',
+            onPressed: _existingFiles.isEmpty ? null : _uploadToDrive,
+          ),
+        ],
       ),
       body: Stack(
         children: [
