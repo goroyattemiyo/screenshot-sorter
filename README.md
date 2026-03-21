@@ -1,33 +1,31 @@
-# S3 - Screenshot Smart Sorter
+# S³ - Screenshot Smart Sorter
 
-スクリーンショットをフォルダに整理・管理するAndroidアプリ（Flutter製）
+Android / Flutter
 
-## 機能一覧
+A simple app to organize screenshots into folders via the share sheet.
 
-- 共有シートからの受け取り（連続保存対応）
-- フォルダ選択・作成・削除・リネーム
-- 画像保存（重複防止付き）
-- フォルダ内画像一覧（枚数バッジ付き）
-- 画像ビューア（スワイプ対応）
-- 画像削除（長押し + 確認）
-- Pull-to-refresh
-- カラースライダー（ネオン虹色テーマ）
-- 光量センサーでダーク/ライト自動切替
-- 手動ダーク/ライト反転ボタン
-- スプラッシュ画面（パステルデザイン）
-- 既存ファイルマイグレーション
+## Features
 
-## 技術スタック
+- Share Sheet Integration
+- Folder Management
+- Gallery Sync
+- Customization (background, theme, display mode)
+- Auto Brightness (light sensor)
+- Google Drive Upload (hidden feature)
 
-Flutter 3.x / Riverpod v3 / share_handler / SharedPreferences / light_sensor / Dart
+## Tech Stack
 
-## セットアップ
+Flutter 3.x / Riverpod / share_handler / SharedPreferences / light_sensor / googleapis
 
-    git clone https://github.com/goroyattemiyo/screenshot-sorter.git
-    cd screenshot-sorter
-    flutter pub get
-    flutter run
+## Getting Started
 
-## ライセンス
+```
+git clone https://github.com/goroyattemiyo/screenshot-sorter.git
+cd screenshot-sorter
+flutter pub get
+flutter run
+```
+
+## License
 
 MIT

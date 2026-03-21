@@ -1,42 +1,40 @@
-# CHANGELOG
+# Changelog
 
-## [1.2.0] - 2026-03-19
+## v1.3.0 (2026-03-21)
 ### Added
-- フォルダ削除・リネーム（長押しメニュー）
-- 光量センサーでライト/ダークモード自動切替
-- 手動ダーク/ライト反転ボタン
-- フォルダ詳細画面で新しい共有を検知（連続保存対応）
-- ローズゴールドアイコン・パステルスプラッシュ画面
-- リリース署名設定（Play Store内部テスト準備）
+- Google Drive integration (hidden feature, unlock with password)
+- Gallery app image display support (MediaScanner)
+- Settings screen with full Japanese localization
+- Background image customization (blur, overlay opacity, overlay color)
+- Six preset theme colors (Rose Gold, Lavender, Mint, Peach, Sky Blue, Sakura)
+- Custom theme hue slider
+- Display mode selector (Auto/Light/Dark)
+- Auto brightness with light sensor (threshold 50/150 lux, 1.5s debounce)
+- Hide images from folder list (images remain in gallery)
+- Hidden password unlock for advanced features
+- Splash screen with app name
+- FAB always visible for new folder creation
 
 ### Fixed
-- folder_providerのドル記号エスケープバグ（削除・同期が正常動作）
-- フォルダ枚数リロード（詳細から戻った時の同期）
-- スプラッシュ画面AnimatedBuilder修正
-- main.dartの重複load()呼び出し削除
+- Light sensor auto-switching (hysteresis + debounce timer)
+- Password dialog controller dispose timing
+- Display mode one-tap switching
+- Image hide persistence across folder re-opens
 
-## [1.1.0] - 2026-03-18
+## v1.2.0 (2026-03-20)
 ### Added
-- カラースライダー（ネオン虹色テーマ変更）
-- 画像削除（長押し + 確認ダイアログ）
-- スワイプビューア（左右スワイプで画像切替）
-- フォルダ内画像枚数表示
-- Pull-to-refresh（上スワイプで再読込）
-- スプラッシュ画面（ネオングラデーション + アプリアイコン）
-- S3アプリアイコン・アプリ名変更
+- Settings screen (background image, theme color, display mode)
+- Background customization (blur/overlay/color adjustment)
+- Six preset colors
+- Folder delete/rename via long-press
+- Rose-gold app icon
+- Pastel splash screen
 
-### Fixed
-- dart:io import不足によるビルドエラー
-- フォルダ枚数の不一致（SharedPreferences同期）
-- String? -> String 型エラー修正
-- 未使用フィールド・メソッド削除
-- pubspec.yaml構造修正
-
-## [1.0.0] - 2026-03-18
-### Added
-- Android共有シートからスクリーンショット受け取り
-- フォルダ選択・新規作成
-- 画像ローカル保存（Pictures配下）
-- フォルダ履歴管理（SharedPreferences）
-- 既存ファイルマイグレーション
-- 保存済み閲覧モード（重複保存防止）
+## v1.0.0 (2026-03-19)
+### Initial Release
+- Share sheet integration for screenshot sorting
+- Folder creation and management
+- Image save to Pictures directory
+- Pull-to-refresh
+- Image viewer with paging
+- Folder history (SharedPreferences)
