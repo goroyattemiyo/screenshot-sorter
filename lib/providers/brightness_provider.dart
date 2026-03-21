@@ -19,7 +19,7 @@ class BrightnessNotifier extends Notifier<bool> {
   bool get isAutoMode => _autoMode;
 
   @override
-  bool build() => true; // true = dark mode
+  bool build() => true;
 
   Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
@@ -31,21 +31,26 @@ class BrightnessNotifier extends Notifier<bool> {
     _sub?.cancel();
     _sub = LightSensor.luxStream().listen((int lux) {
       if (!_autoMode) return;
-      // Hysteresis: dark below 30 lux, light above 80 lux
       final bool? shouldBeDark;
-      if (state && lux > _lightThreshold) {
-        shouldBeDark = false;
-      } else if (!state && lux < _darkThreshold) {
+      if (lux < _darkThreshold) {
         shouldBeDark = true;
+      } else if (lux > _lightThreshold) {
+        shouldBeDark = false;
       } else {
         shouldBeDark = null;
       }
       if (shouldBeDark != null && shouldBeDark != state) {
+        if (_debounce == null) {
+          final target = shouldBeDark;
+          _debounce = Timer(const Duration(milliseconds: 1500), () {
+            state = target;
+            _debounce = null;
+            _save();
+          });
+        }
+      } else {
         _debounce?.cancel();
-        _debounce = Timer(const Duration(milliseconds: 1500), () {
-          state = shouldBeDark!;
-          _save();
-        });
+        _debounce = null;
       }
     });
   }
