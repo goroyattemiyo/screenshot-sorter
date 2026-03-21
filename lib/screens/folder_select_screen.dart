@@ -169,7 +169,7 @@ class _FolderSelectScreenState extends ConsumerState<FolderSelectScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('フォルダを削除'),
-        content: Text('「$folderName」とその中の画像をすべて削除しますか？\nこの操作は取り消せません。'),
+        content: Text('「$folderName」を一覧から削除しますか？\n（ギャラリーのフォルダと画像は残ります）'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -185,17 +185,14 @@ class _FolderSelectScreenState extends ConsumerState<FolderSelectScreen> {
     );
     if (confirmed == true) {
       try {
-        final dir = Directory('/storage/emulated/0/Pictures/$folderName');
-        if (dir.existsSync()) {
-          await dir.delete(recursive: true);
-        }
+        // SharedPreferencesからのみ削除（実フォルダ・画像はギャラリーに残す）
         final notifier = ref.read(folderHistoryProvider.notifier);
         await notifier.syncFilesForFolder(folderName, []);
         await notifier.remove(folderName);
         await _updateFolderCounts();
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('「$folderName」を削除しました')),
+            SnackBar(content: Text('「$folderName」を一覧から削除しました')),
           );
         }
       } catch (e) {
@@ -442,18 +439,12 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
   Future<void> _loadExistingFiles() async {
     await widget.folderHistoryNotifier.migrateExistingFiles(widget.folderName);
     final paths = await widget.folderHistoryNotifier.getFilesForFolder(widget.folderName);
-    final existingPaths = <String>[];
     final files = <File>[];
     for (final p in paths) {
       final f = File(p);
       if (f.existsSync()) {
-        existingPaths.add(p);
         files.add(f);
       }
-    }
-    // Sync SharedPreferences with actual files
-    if (existingPaths.length != paths.length) {
-      await widget.folderHistoryNotifier.syncFilesForFolder(widget.folderName, existingPaths);
     }
     debugPrint('LoadFiles: ${files.length} files found for ${widget.folderName}');
     if (mounted) setState(() => _existingFiles = files);
@@ -486,7 +477,7 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('画像を削除'),
+        title: const Text('一覧から非表示'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -498,7 +489,7 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
               ),
             ),
             const SizedBox(height: 12),
-            const Text('この画像を削除しますか？'),
+            const Text('この画像を一覧から非表示にしますか？\n（ギャラリーの画像は残ります）'),
           ],
         ),
         actions: [
@@ -516,7 +507,7 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
     );
     if (confirmed == true) {
       try {
-        await file.delete();
+        // SharedPreferencesからのみ削除（実ファイルはギャラリーに残す）
         await widget.folderHistoryNotifier.removeFileFromFolder(widget.folderName, file.path);
         await _loadExistingFiles();
         if (_viewingIndex != null) {
@@ -528,7 +519,7 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
         }
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('画像を削除しました')),
+            const SnackBar(content: Text('一覧から非表示にしました')),
           );
         }
       } catch (e) {

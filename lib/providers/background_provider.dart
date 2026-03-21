@@ -94,3 +94,35 @@ class BgOverlayHueNotifier extends Notifier<double> {
     await prefs.setDouble(_key, v);
   }
 }
+
+
+final driveUnlockedProvider = NotifierProvider<DriveUnlockedNotifier, bool>(
+  DriveUnlockedNotifier.new,
+);
+
+class DriveUnlockedNotifier extends Notifier<bool> {
+  static const _key = 'drive_unlocked';
+  static const _password = 'SSSS';
+
+  @override
+  bool build() => false;
+
+  Future<void> load() async {
+    final prefs = await SharedPreferences.getInstance();
+    state = prefs.getBool(_key) ?? false;
+  }
+
+  bool tryUnlock(String input) {
+    if (input == _password) {
+      state = true;
+      _save();
+      return true;
+    }
+    return false;
+  }
+
+  Future<void> _save() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_key, state);
+  }
+}

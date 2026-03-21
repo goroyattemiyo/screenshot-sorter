@@ -28,6 +28,7 @@ class _ScreenshotSorterAppState extends ConsumerState<ScreenshotSorterApp> {
       await ref.read(brightnessProvider.notifier).load();
       ref.read(brightnessProvider.notifier).startListening();
       await ref.read(backgroundProvider.notifier).load();
+      await ref.read(driveUnlockedProvider.notifier).load();
       await ref.read(bgBlurProvider.notifier).load();
       await ref.read(bgOpacityProvider.notifier).load();
       await ref.read(bgOverlayHueProvider.notifier).load();

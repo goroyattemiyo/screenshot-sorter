@@ -40,6 +40,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final bgOverlayHue = ref.watch(bgOverlayHueProvider);
     final brightnessNotifier = ref.read(brightnessProvider.notifier);
     final accentColor = HSLColor.fromAHSL(1, hue, 0.6, isDark ? 0.7 : 0.4).toColor();
+    final driveUnlocked = ref.watch(driveUnlockedProvider);
     final cardColor = isDark ? Colors.white.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.04);
 
     return Scaffold(
@@ -328,7 +329,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
                 const SizedBox(height: 24),
 
-                // ---- Google Drive ----
+                // ---- Google Drive (hidden by default) ----
+                if (driveUnlocked) ...[
                 _sectionTitle('Google Drive 連携', accentColor),
                 const SizedBox(height: 8),
                 Container(
@@ -383,6 +385,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 ),
 
                 const SizedBox(height: 24),
+                ],
 
                 // ---- App Info ----
                 _sectionTitle('アプリ情報', accentColor),
@@ -397,9 +400,68 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     children: [
                       Row(
                         children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(12),
-                            child: Image.asset('assets/icon.png', width: 48, height: 48),
+                          GestureDetector(
+                            onLongPress: () async {
+                              if (driveUnlocked) return;
+                              // Show "keep holding..." feedback
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('そのまま5秒長押ししてください...'),
+                                  duration: Duration(seconds: 2),
+                                ),
+                              );
+                            },
+                            onLongPressStart: (_) {
+                              Future.delayed(const Duration(seconds: 5), () async {
+                                if (!mounted) return;
+                                if (driveUnlocked) return;
+                                final controller = TextEditingController();
+                                final result = await showDialog<bool>(
+                                context: context,
+                                builder: (ctx) => AlertDialog(
+                                  title: const Text('パスワードを入力'),
+                                  content: TextField(
+                                    controller: controller,
+                                    autofocus: true,
+                                    obscureText: true,
+                                    decoration: const InputDecoration(
+                                      hintText: 'パスワード',
+                                      border: OutlineInputBorder(),
+                                    ),
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => Navigator.pop(ctx, false),
+                                      child: const Text('キャンセル'),
+                                    ),
+                                    FilledButton(
+                                      onPressed: () {
+                                        final ok = ref.read(driveUnlockedProvider.notifier).tryUnlock(controller.text);
+                                        Navigator.pop(ctx, ok);
+                                      },
+                                      child: const Text('解除'),
+                                    ),
+                                  ],
+                                ),
+                              );
+                              controller.dispose();
+                              if (result == true && mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Google Drive連携が解放されました！')),
+                                );
+                              } else if (result == false) {
+                                if (mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('パスワードが違います')),
+                                  );
+                                }
+                              }
+                              });
+                            },
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(12),
+                              child: Image.asset('assets/icon.png', width: 48, height: 48),
+                            ),
                           ),
                           const SizedBox(width: 12),
                           const Column(
