@@ -66,6 +66,7 @@ class FolderHistoryNotifier extends Notifier<List<String>> {
     final key = 'folder_files_$folderName';
     final recorded = prefs.getStringList(key) ?? [];
     final recordedSet = recorded.toSet();
+    final hiddenSet = (prefs.getStringList('folder_hidden_$folderName') ?? []).toSet();
 
     final dir = Directory('/storage/emulated/0/Pictures/$folderName');
     if (!dir.existsSync()) return;
@@ -86,7 +87,7 @@ class FolderHistoryNotifier extends Notifier<List<String>> {
 
     final newPaths = <String>[];
     for (final file in allFiles) {
-      if (!recordedSet.contains(file.path)) {
+      if (!recordedSet.contains(file.path) && !hiddenSet.contains(file.path)) {
         newPaths.add(file.path);
       }
     }
@@ -115,5 +116,21 @@ class FolderHistoryNotifier extends Notifier<List<String>> {
     final key = 'folder_files_$folderName';
     await prefs.setStringList(key, existingPaths);
     debugPrint('FolderHistory.sync: $folderName -> ${existingPaths.length} files');
+  }
+
+  /// Hide a file: remove from file list + add to hidden list
+  Future<void> hideFileFromFolder(String folderName, String filePath) async {
+    final prefs = await SharedPreferences.getInstance();
+    final key = 'folder_files_$folderName';
+    final files = prefs.getStringList(key) ?? [];
+    files.remove(filePath);
+    await prefs.setStringList(key, files);
+    final hiddenKey = 'folder_hidden_$folderName';
+    final hidden = prefs.getStringList(hiddenKey) ?? [];
+    if (!hidden.contains(filePath)) {
+      hidden.add(filePath);
+      await prefs.setStringList(hiddenKey, hidden);
+    }
+    debugPrint('FolderHistory.hide: $folderName -> hidden $filePath');
   }
 }

@@ -1,3 +1,5 @@
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:async';
 import 'dart:io';
 import 'dart:ui';
 import 'package:flutter/material.dart';
@@ -17,6 +19,29 @@ class SettingsScreen extends ConsumerStatefulWidget {
 
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   final _picker = ImagePicker();
+  Timer? _unlockTimer;
+  bool _driveUnlocked = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadDriveState();
+  }
+
+  Future<void> _loadDriveState() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (mounted) {
+      setState(() {
+        _driveUnlocked = prefs.getBool('drive_unlocked') ?? false;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _unlockTimer?.cancel();
+    super.dispose();
+  }
 
   Future<void> _pickBackgroundImage() async {
     final picked = await _picker.pickImage(source: ImageSource.gallery, maxWidth: 1920, maxHeight: 1920, imageQuality: 80);
@@ -40,7 +65,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final bgOverlayHue = ref.watch(bgOverlayHueProvider);
     final brightnessNotifier = ref.read(brightnessProvider.notifier);
     final accentColor = HSLColor.fromAHSL(1, hue, 0.6, isDark ? 0.7 : 0.4).toColor();
-    final driveUnlocked = ref.watch(driveUnlockedProvider);
+    final driveUnlocked = _driveUnlocked;
     final cardColor = isDark ? Colors.white.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.04);
 
     return Scaffold(
@@ -297,6 +322,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         accentColor: accentColor,
                         onTap: () {
                           brightnessNotifier.setAutoMode(true);
+                          setState(() {});
                         },
                       ),
                       _modeRadio(
@@ -307,8 +333,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         groupValue: brightnessNotifier.isAutoMode ? 'auto' : (isDark ? 'dark' : 'light'),
                         accentColor: accentColor,
                         onTap: () {
-                          brightnessNotifier.setAutoMode(false);
-                          if (isDark) brightnessNotifier.toggle();
+                          brightnessNotifier.setLight();
+                          setState(() {});
                         },
                       ),
                       _modeRadio(
@@ -319,8 +345,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         groupValue: brightnessNotifier.isAutoMode ? 'auto' : (isDark ? 'dark' : 'light'),
                         accentColor: accentColor,
                         onTap: () {
-                          brightnessNotifier.setAutoMode(false);
-                          if (!isDark) brightnessNotifier.toggle();
+                          brightnessNotifier.setDark();
+                          setState(() {});
                         },
                       ),
                     ],
@@ -401,62 +427,20 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       Row(
                         children: [
                           GestureDetector(
-                            onLongPress: () async {
-                              if (driveUnlocked) return;
-                              // Show "keep holding..." feedback
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('そのまま5秒長押ししてください...'),
-                                  duration: Duration(seconds: 2),
-                                ),
-                              );
-                            },
                             onLongPressStart: (_) {
-                              Future.delayed(const Duration(seconds: 5), () async {
+                              if (driveUnlocked) return;
+                              _unlockTimer = Timer(const Duration(seconds: 5), () {
                                 if (!mounted) return;
-                                if (driveUnlocked) return;
-                                final controller = TextEditingController();
-                                final result = await showDialog<bool>(
-                                context: context,
-                                builder: (ctx) => AlertDialog(
-                                  title: const Text('パスワードを入力'),
-                                  content: TextField(
-                                    controller: controller,
-                                    autofocus: true,
-                                    obscureText: true,
-                                    decoration: const InputDecoration(
-                                      hintText: 'パスワード',
-                                      border: OutlineInputBorder(),
-                                    ),
-                                  ),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () => Navigator.pop(ctx, false),
-                                      child: const Text('キャンセル'),
-                                    ),
-                                    FilledButton(
-                                      onPressed: () {
-                                        final ok = ref.read(driveUnlockedProvider.notifier).tryUnlock(controller.text);
-                                        Navigator.pop(ctx, ok);
-                                      },
-                                      child: const Text('解除'),
-                                    ),
-                                  ],
-                                ),
-                              );
-                              controller.dispose();
-                              if (result == true && mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Google Drive連携が解放されました！')),
-                                );
-                              } else if (result == false) {
-                                if (mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('パスワードが違います')),
-                                  );
-                                }
-                              }
+                                _showUnlockDialog();
                               });
+                            },
+                            onLongPressEnd: (_) {
+                              _unlockTimer?.cancel();
+                              _unlockTimer = null;
+                            },
+                            onLongPressCancel: () {
+                              _unlockTimer?.cancel();
+                              _unlockTimer = null;
                             },
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(12),
@@ -469,7 +453,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             children: [
                               Text('S\u00B3 - Screenshot Smart Sorter', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
                               SizedBox(height: 2),
-                              Text('Version 1.2.0\nS\u00B3 = Screenshot Smart Sorter', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                              Text('Version 1.3.0\nS\u00B3 = Screenshot Smart Sorter', style: TextStyle(fontSize: 12, color: Colors.grey)),
                             ],
                           ),
                         ],
@@ -494,6 +478,57 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         ],
       ),
     );
+  }
+
+
+  Future<void> _showUnlockDialog() async {
+    final controller = TextEditingController();
+    final result = await showDialog<String>(
+      context: context,
+      barrierDismissible: true,
+      builder: (ctx) => AlertDialog(
+        title: const Text('パスワードを入力'),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          obscureText: true,
+          decoration: const InputDecoration(
+            hintText: 'パスワード',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('キャンセル'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, controller.text),
+            child: const Text('解除'),
+          ),
+        ],
+      ),
+    );
+    // Delay dispose to let keyboard animation finish
+    Future.delayed(const Duration(milliseconds: 500), () {
+      controller.dispose();
+    });
+    if (result == null || !mounted) return;
+    // Check password directly without Riverpod state change during build
+    if (result == 'SSSS') {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('drive_unlocked', true);
+      if (!mounted) return;
+      setState(() => _driveUnlocked = true);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Google Drive連携が解放されました！')),
+      );
+    } else {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('パスワードが違います')),
+      );
+    }
   }
 
   Widget _sectionTitle(String title, Color color) {

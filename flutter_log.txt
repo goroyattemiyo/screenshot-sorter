@@ -1,0 +1,352 @@
+Resolving dependencies...
+Downloading packages...
+  _fe_analyzer_shared 93.0.0 (98.0.0 available)
+  analyzer 10.0.1 (12.0.0 available)
+  google_sign_in 6.3.0 (7.2.0 available)
+  google_sign_in_android 6.2.1 (7.2.9 available)
+  google_sign_in_ios 5.9.0 (6.3.0 available)
+  google_sign_in_platform_interface 2.5.0 (3.1.0 available)
+  google_sign_in_web 0.12.4+4 (1.1.3 available)
+  googleapis 13.2.0 (16.0.0 available)
+  meta 1.17.0 (1.18.2 available)
+  test 1.30.0 (1.31.0 available)
+  test_api 0.7.10 (0.7.11 available)
+  test_core 0.6.16 (0.6.17 available)
+  vector_math 2.2.0 (2.3.0 available)
+Got dependencies!
+13 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+Launching lib\main.dart on 23076RA4BR in debug mode...
+Running Gradle task 'assembleDebug'...                              6.9s
+竏・Built build\app\outputs\flutter-apk\app-debug.apk
+Installing build\app\outputs\flutter-apk\app-debug.apk...           5.0s
+D/FlutterJNI(16301): Beginning load of flutter...
+D/FlutterJNI(16301): flutter (null) was loaded normally!
+I/flutter (16301): [IMPORTANT:flutter/shell/platform/android/android_context_vk_impeller.cc(62)] Using the Impeller rendering backend (Vulkan).
+I/flutter (16301): [IMPORTANT:flutter/shell/platform/android/android_context_gl_impeller.cc(104)] Using the Impeller rendering backend (OpenGLES).
+D/FlutterRenderer(16301): Width is zero. 0,0
+Syncing files to device 23076RA4BR...                              183ms
+
+Flutter run key commands.
+r Hot reload. 
+R Hot restart.
+h List all available interactive commands.
+d Detach (terminate "flutter run" but leave application running).
+c Clear the screen
+q Quit (terminate the application on the device).
+
+A Dart VM Service on 23076RA4BR is available at: http://127.0.0.1:52764/YQXAKY8z8Q4=/
+The Flutter DevTools debugger and profiler on 23076RA4BR is available at: http://127.0.0.1:52764/YQXAKY8z8Q4=/devtools/?uri=ws://127.0.0.1:52764/YQXAKY8z8Q4=/ws
+E/FileUtils(16301): err write to mi_exception_log
+I/Choreographer(16301): Skipped 139 frames!  The application may be doing too much work on its main thread.
+D/UserSceneDetector(16301): invoke error.
+D/DecorViewImmersiveImpl(16301): onAttachedToWindow:com.goroyattemiyo.screenshot_sorter/com.goroyattemiyo.screenshot_sorter.MainActivity
+I/WindowExtensionsImpl(16301): Initializing Window Extensions, vendor API level=6, activity embedding enabled=true
+I/reenshot_sorter(16301): Compiler allocated 5280KB to compile void android.view.ViewRootImpl.performTraversals()
+D/FlutterRenderer(16301): Width is zero. 0,0
+W/reenshot_sorter(16301): type=1400 audit(0.0:3550775): avc:  denied  { read } for  name="u:object_r:vendor_display_prop:s0" dev="tmpfs" ino=450 scontext=u:r:untrusted_app:s0:c210,c257,c512,c768 tcontext=u:object_r:vendor_display_prop:s0 tclass=file permissive=0 app=com.miHoYo.GenshinImpact
+W/libc    (16301): Access denied finding property "vendor.display.enable_optimal_refresh_rate"
+W/libc    (16301): Access denied finding property "vendor.gpp.create_frc_extension"
+I/reenshot_sorter(16301): 縲信iuiBoosterUtils縲祖heckUtil disable.
+I/reenshot_sorter(16301): 縲信iuiBoosterUtils縲叢ackage permission check disable.
+I/reenshot_sorter(16301): 縲信iuiBoosterUtils縲組et Service disable.
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/VRI[MainActivity](16301): vri.reportNextDraw android.view.ViewRootImpl.performTraversals:4972 android.view.ViewRootImpl.doTraversal:3560 android.view.ViewRootImpl$TraversalRunnable.run:11601 android.view.Choreographer$CallbackRecord.run:1747 android.view.Choreographer$CallbackRecord.run:1756 
+D/SurfaceView(16301): UPDATE null, mIsCastMode = false
+W/libc    (16301): Access denied finding property "vendor.display.enable_optimal_refresh_rate"
+W/reenshot_sorter(16301): type=1400 audit(0.0:3550776): avc:  denied  { read } for  name="u:object_r:vendor_display_prop:s0" dev="tmpfs" ino=450 scontext=u:r:untrusted_app:s0:c210,c257,c512,c768 tcontext=u:object_r:vendor_display_prop:s0 tclass=file permissive=0 app=com.miHoYo.GenshinImpact
+I/reenshot_sorter(16301): 縲信iuiBoosterUtils縲祖heckUtil disable.
+I/reenshot_sorter(16301): 縲信iuiBoosterUtils縲叢ackage permission check disable.
+I/reenshot_sorter(16301): 縲信iuiBoosterUtils縲組et Service disable.
+E/FileUtils(16301): err write to mi_exception_log
+E/FileUtils(16301): err write to mi_exception_log
+E/LB      (16301): fail to open file: No such file or directory
+E/LB      (16301): fail to open node: No such file or directory
+E/LB      (16301): fail to open node: No such file or directory
+D/SurfaceView(16301): UPDATE Surface(name=SurfaceView[com.goroyattemiyo.screenshot_sorter/com.goroyattemiyo.screenshot_sorter.MainActivity]#197918)/@0x790a763, mIsProjectionMode = false
+D/VRI[MainActivity](16301): vri.Setup new sync=wmsSync-VRI[MainActivity]#1
+D/UserSceneDetector(16301): invoke error.
+D/reenshot_sorter(16301): MiuiProcessManagerServiceStub setSchedFifo
+I/MiuiProcessManagerImpl(16301): setSchedFifo pid:16301, mode:3
+D/VRI[MainActivity](16301): vri.reportDrawFinished
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+I/HandWritingStubImpl(16301): refreshLastKeyboardType: 1
+I/HandWritingStubImpl(16301): getCurrentKeyboardType: 1
+I/HandWritingStubImpl(16301): getCurrentKeyboardType: 1
+D/ProfileInstaller(16301): Installing profile for com.goroyattemiyo.screenshot_sorter
+I/flutter (16301): FolderHistory.load: []
+W/WindowOnBackDispatcher(16301): OnBackInvokedCallback is not enabled for the application.
+W/WindowOnBackDispatcher(16301): Set 'android:enableOnBackInvokedCallback="true"' in the application manifest.
+I/MIUIInput(16301): [MotionEvent] ViewRootImpl windowName 'com.goroyattemiyo.screenshot_sorter/com.goroyattemiyo.screenshot_sorter.MainActivity', { action=ACTION_DOWN, id[0]=0, pointerCount=1, eventTime=980072600, downTime=980072600, phoneEventTime=22:56:34.776 } moveCount:0
+W/MirrorManager(16301): this model don't Support
+W/reenshot_sorter(16301): userfaultfd: MOVE ioctl seems unsupported: Connection timed out
+I/MIUIInput(16301): [MotionEvent] ViewRootImpl windowName 'com.goroyattemiyo.screenshot_sorter/com.goroyattemiyo.screenshot_sorter.MainActivity', { action=ACTION_UP, id[0]=0, pointerCount=1, eventTime=980072819, downTime=980072600, phoneEventTime=22:56:34.995 } moveCount:9
+E/reenshot_sorter(16301): FrameInsert open fail: No such file or directory
+I/Choreographer(16301): Skipped 41 frames!  The application may be doing too much work on its main thread.
+D/UserSceneDetector(16301): invoke error.
+E/FileUtils(16301): err write to mi_exception_log
+W/WindowOnBackDispatcher(16301): OnBackInvokedCallback is not enabled for the application.
+W/WindowOnBackDispatcher(16301): Set 'android:enableOnBackInvokedCallback="true"' in the application manifest.
+I/MIUIInput(16301): [MotionEvent] ViewRootImpl windowName 'com.goroyattemiyo.screenshot_sorter/com.goroyattemiyo.screenshot_sorter.MainActivity', { action=ACTION_DOWN, id[0]=0, pointerCount=1, eventTime=980074786, downTime=980074786, phoneEventTime=22:56:36.962 } moveCount:0
+I/MIUIInput(16301): [MotionEvent] ViewRootImpl windowName 'com.goroyattemiyo.screenshot_sorter/com.goroyattemiyo.screenshot_sorter.MainActivity', { action=ACTION_UP, id[0]=0, pointerCount=1, eventTime=980075243, downTime=980074786, phoneEventTime=22:56:37.419 } moveCount:86
+I/MIUIInput(16301): [MotionEvent] ViewRootImpl windowName 'com.goroyattemiyo.screenshot_sorter/com.goroyattemiyo.screenshot_sorter.MainActivity', { action=ACTION_DOWN, id[0]=0, pointerCount=1, eventTime=980077698, downTime=980077698, phoneEventTime=22:56:39.874 } moveCount:0
+I/MiInputConsumer(16301): optimized resample latency: 132378265 ns
+I/ImeTracker(16301): com.goroyattemiyo.screenshot_sorter:c2655290: onRequestShow at ORIGIN_CLIENT reason SHOW_SOFT_INPUT fromUser false
+I/HandWritingStubImpl(16301): refreshLastKeyboardType: 1
+I/HandWritingStubImpl(16301): getCurrentKeyboardType: 1
+D/InputMethodManager(16301): showSoftInput() view=io.flutter.embedding.android.FlutterView{387389a VFE...... .F....ID 0,0-1080,2460 #1 aid=1073741824} flags=0 reason=SHOW_SOFT_INPUT
+I/ImeTracker(16301): com.goroyattemiyo.screenshot_sorter:42c9863e: onRequestShow at ORIGIN_CLIENT reason SHOW_SOFT_INPUT fromUser false
+D/InputMethodManager(16301): showSoftInput() view=io.flutter.embedding.android.FlutterView{387389a VFE...... .F....ID 0,0-1080,2460 #1 aid=1073741824} flags=0 reason=SHOW_SOFT_INPUT
+I/AssistStructure(16301): Flattened final assist data: 508 bytes, containing 1 windows, 3 views
+D/InputConnectionAdaptor(16301): The input method toggled cursor monitoring on
+D/InsetsController(16301): show(ime(), fromIme=true)
+D/ViewRootImplStubImpl(16301): requestedTypes: 8
+D/ViewRootImplStubImpl(16301): onAnimationStart
+W/InteractionJankMonitor(16301): Initializing without READ_DEVICE_CONFIG permission. enabled=false, interval=1, missedFrameThreshold=3, frameTimeThreshold=64, package=com.goroyattemiyo.screenshot_sorter
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.0
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.021182224
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.075998
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.14968427
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.2321378
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.31662148
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.39880893
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.47606507
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.5469394
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.6107919
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.66751516
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.7173427
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.760715
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.7981816
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.8303396
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.8577909
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.88111264
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.90084445
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.9174783
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.93145543
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.94316626
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.9529533
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.9611133
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.96790236
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.97354007
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.97821337
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.98208106
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.9852773
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.9879149
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.9900889
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.9918786
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.9933504
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+W/RenderInspector(16301): QueueBuffer time out on com.goroyattemiyo.screenshot_sorter/com.goroyattemiyo.screenshot_sorter.MainActivity, count=1, avg=17 ms, max=17 ms.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.9945595
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.99555194
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.9963657
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.99703246
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.9975783
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.9980248
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.99838984
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.99868804
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 1.0
+D/ViewRootImplStubImpl(16301): onAnimationEnd,canceled: false
+D/InsetsController(16301): cancelAnimation of types: 8, animType: 0, host: com.goroyattemiyo.screenshot_sorter/com.goroyattemiyo.screenshot_sorter.MainActivity invokeCallback=false reason=android.view.InsetsController.notifyFinished:1793 android.view.InsetsAnimationControlImpl.applyChangeInsets:310 android.view.InsetsController.lambda$new$3:870 android.view.InsetsController.$r8$lambda$meqKUiuVHZJFS86fhQQzBBmdABw:0 android.view.InsetsController$$ExternalSyntheticLambda11.run:0 android.view.Choreographer$CallbackRecord.run:1747 android.view.Choreographer$CallbackRecord.run:1756 android.view.Choreographer.doCallbacks:1270 android.view.Choreographer.doFrame:1160 android.view.Choreographer$FrameDisplayEventReceiver.run:1710 
+I/ImeTracker(16301): com.goroyattemiyo.screenshot_sorter:42c9863e: onShown
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+I/MIUIInput(16301): [MotionEvent] ViewRootImpl windowName 'com.goroyattemiyo.screenshot_sorter/com.goroyattemiyo.screenshot_sorter.MainActivity', { action=ACTION_UP, id[0]=0, pointerCount=1, eventTime=980085365, downTime=980077698, phoneEventTime=22:56:47.541 } moveCount:784
+E/FileUtils(16301): err write to mi_exception_log
+I/MIUIInput(16301): [MotionEvent] ViewRootImpl windowName 'com.goroyattemiyo.screenshot_sorter/com.goroyattemiyo.screenshot_sorter.MainActivity', { action=ACTION_DOWN, id[0]=0, pointerCount=1, eventTime=980100731, downTime=980100731, phoneEventTime=22:57:02.907 } moveCount:0
+I/MIUIInput(16301): [MotionEvent] ViewRootImpl windowName 'com.goroyattemiyo.screenshot_sorter/com.goroyattemiyo.screenshot_sorter.MainActivity', { action=ACTION_UP, id[0]=0, pointerCount=1, eventTime=980100850, downTime=980100731, phoneEventTime=22:57:03.026 } moveCount:3
+
+笊絶武笊｡ EXCEPTION CAUGHT BY WIDGETS LIBRARY 笊樞武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武
+The following assertion was thrown building RawGestureDetector(state:
+RawGestureDetectorState#91692(gestures: [tap, long press, tap and horizontal drag],
+excludeFromSemantics: true, behavior: translucent)):
+A TextEditingController was used after being disposed.
+Once you have called dispose() on a TextEditingController, it can no longer be used.
+
+The relevant error-causing widget was:
+  TextField TextField:file:///C:/dev/screenshot-sorter/lib/screens/settings_screen.dart:491:18
+
+When the exception was thrown, this was the stack:
+#0      ChangeNotifier.debugAssertNotDisposed.<anonymous closure> (package:flutter/src/foundation/change_notifier.dart:182:9)
+#1      ChangeNotifier.debugAssertNotDisposed (package:flutter/src/foundation/change_notifier.dart:189:6)
+#2      ChangeNotifier.addListener (package:flutter/src/foundation/change_notifier.dart:271:27)
+#3      _MergingListenable.addListener (package:flutter/src/foundation/change_notifier.dart:500:14)
+#4      _AnimatedState.didUpdateWidget (package:flutter/src/widgets/transitions.dart:119:25)
+#5      StatefulElement.update (package:flutter/src/widgets/framework.dart:5991:55)
+#6      Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#7      SingleChildRenderObjectElement.update (package:flutter/src/widgets/framework.dart:7122:14)
+#8      Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#9      ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#10     StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5982:11)
+#11     Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#12     StatefulElement.update (package:flutter/src/widgets/framework.dart:6007:5)
+#13     Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#14     ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#15     StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5982:11)
+#16     Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#17     StatefulElement.update (package:flutter/src/widgets/framework.dart:6007:5)
+#18     Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#19     SingleChildRenderObjectElement.update (package:flutter/src/widgets/framework.dart:7122:14)
+#20     Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#21     ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#22     StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5982:11)
+#23     Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#24     StatefulElement.update (package:flutter/src/widgets/framework.dart:6007:5)
+#25     Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#26     SingleChildRenderObjectElement.update (package:flutter/src/widgets/framework.dart:7122:14)
+#27     Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#28     SingleChildRenderObjectElement.update (package:flutter/src/widgets/framework.dart:7122:14)
+#29     Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#30     SingleChildRenderObjectElement.update (package:flutter/src/widgets/framework.dart:7122:14)
+#31     Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#32     ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#33     StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5982:11)
+#34     Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#35     BuildScope._tryRebuild (package:flutter/src/widgets/framework.dart:2750:15)
+#36     BuildScope._flushDirtyElements (package:flutter/src/widgets/framework.dart:2807:11)
+#37     BuildOwner.buildScope (package:flutter/src/widgets/framework.dart:3111:18)
+#38     WidgetsBinding.drawFrame (package:flutter/src/widgets/binding.dart:1302:21)
+#39     RendererBinding._handlePersistentFrameCallback (package:flutter/src/rendering/binding.dart:495:5)
+#40     SchedulerBinding._invokeFrameCallback (package:flutter/src/scheduler/binding.dart:1430:15)
+#41     SchedulerBinding.handleDrawFrame (package:flutter/src/scheduler/binding.dart:1345:9)
+#42     SchedulerBinding._handleDrawFrame (package:flutter/src/scheduler/binding.dart:1198:5)
+#43     _invoke (dart:ui/hooks.dart:356:13)
+#44     PlatformDispatcher._drawFrame (dart:ui/platform_dispatcher.dart:444:5)
+#45     _drawFrame (dart:ui/hooks.dart:328:31)
+
+笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武
+
+Another exception was thrown: 'package:flutter/src/widgets/framework.dart': Failed assertion: line 6268 pos 12: '_dependents.isEmpty': is not true.
+I/ImeTracker(16301): com.goroyattemiyo.screenshot_sorter:44b72738: onRequestHide at ORIGIN_CLIENT reason HIDE_SOFT_INPUT fromUser false
+D/InputConnectionAdaptor(16301): The input method toggled cursor monitoring off
+D/InsetsController(16301): hide(ime(), fromIme=true)
+D/ViewRootImplStubImpl(16301): requestedTypes: 8
+D/ViewRootImplStubImpl(16301): onAnimationStart
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.0
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.02391304
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.08503983
+W/RenderInspector(16301): QueueBuffer time out on com.goroyattemiyo.screenshot_sorter/com.goroyattemiyo.screenshot_sorter.MainActivity, count=1, avg=17 ms, max=17 ms.
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.16572116
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.254355
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.34355342
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.42882666
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.50765055
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.578809
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.64193434
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.69718814
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.7450447
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.7861442
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.82119614
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.8509209
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.8760053
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.897087
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.914743
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.92948496
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.94176185
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.9519626
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.96042174
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.9674243
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.97321206
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.97798914
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.98192734
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.9851704
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.98783857
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.99003196
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.99183357
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.99331236
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.99452543
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.99552
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.99633497
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.99700254
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.9975491
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.99799645
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.9983625
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 0.9986619
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/ViewRootImplStubImpl(16301): onAnimationUpdate, value: 1.0
+D/ViewRootImplStubImpl(16301): onAnimationEnd,canceled: false
+D/InsetsController(16301): cancelAnimation of types: 8, animType: 1, host: com.goroyattemiyo.screenshot_sorter/com.goroyattemiyo.screenshot_sorter.MainActivity invokeCallback=false reason=android.view.InsetsController.notifyFinished:1793 android.view.InsetsAnimationControlImpl.applyChangeInsets:310 android.view.InsetsController.lambda$new$3:870 android.view.InsetsController.$r8$lambda$meqKUiuVHZJFS86fhQQzBBmdABw:0 android.view.InsetsController$$ExternalSyntheticLambda11.run:0 android.view.Choreographer$CallbackRecord.run:1747 android.view.Choreographer$CallbackRecord.run:1756 android.view.Choreographer.doCallbacks:1270 android.view.Choreographer.doFrame:1160 android.view.Choreographer$FrameDisplayEventReceiver.run:1710 
+I/ImeTracker(16301): com.goroyattemiyo.screenshot_sorter:eb60306d: onRequestHide at ORIGIN_CLIENT reason HIDE_SOFT_INPUT_ON_ANIMATION_STATE_CHANGED fromUser false
+I/ImeTracker(16301): com.goroyattemiyo.screenshot_sorter:44b72738: onHidden
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+D/FlutterJNI(16301): Sending viewport metrics to the engine.
+I/HandWritingStubImpl(16301): getCurrentKeyboardType: 1
+
+

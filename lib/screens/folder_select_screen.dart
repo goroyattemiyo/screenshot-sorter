@@ -348,13 +348,11 @@ class _FolderSelectScreenState extends ConsumerState<FolderSelectScreen> {
           ),
         ],
       ),
-      floatingActionButton: (hasImage && !_alreadySaved)
-          ? FloatingActionButton.extended(
+      floatingActionButton: FloatingActionButton.extended(
               onPressed: _showNewFolderDialog,
               icon: const Icon(Icons.create_new_folder),
               label: const Text('新規フォルダ'),
-            )
-          : null,
+            ),
     );
   }
 
@@ -507,8 +505,8 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
     );
     if (confirmed == true) {
       try {
-        // SharedPreferencesからのみ削除（実ファイルはギャラリーに残す）
-        await widget.folderHistoryNotifier.removeFileFromFolder(widget.folderName, file.path);
+        // SharedPreferencesから削除＋非表示リストに追加（実ファイルはギャラリーに残す）
+        await widget.folderHistoryNotifier.hideFileFromFolder(widget.folderName, file.path);
         await _loadExistingFiles();
         if (_viewingIndex != null) {
           if (_existingFiles.isEmpty) {
@@ -789,11 +787,12 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
         title: Text(widget.folderName),
         centerTitle: true,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.cloud_upload_outlined),
-            tooltip: 'Google Driveにアップロード',
-            onPressed: _existingFiles.isEmpty ? null : _uploadToDrive,
-          ),
+          if (ref.watch(driveUnlockedProvider))
+            IconButton(
+              icon: const Icon(Icons.cloud_upload_outlined),
+              tooltip: 'Google Driveにアップロード',
+              onPressed: _existingFiles.isEmpty ? null : _uploadToDrive,
+            ),
         ],
       ),
       body: Stack(

@@ -113,10 +113,20 @@ class _SplashScreenState extends State<SplashScreen>
                       ),
                       const SizedBox(height: 8),
                       const Text(
+                        'Screenshot Smart Sorter',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                          color: Color(0xFFB76E79),
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      const Text(
                         'スクショを瞬時に整理',
                         style: TextStyle(
-                          fontSize: 14,
-                          color: Color(0xFFB76E79),
+                          fontSize: 12,
+                          color: Color(0xFFC8A2C8),
                         ),
                       ),
                     ],
