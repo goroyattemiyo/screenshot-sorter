@@ -53,4 +53,17 @@ class ImageSaveService {
   }) async {
     throw UnimplementedError('iOS save not yet implemented');
   }
+
+
+
+
+
+  /// Open the device gallery app
+  static Future<void> openGallery() async {
+    try {
+      await _channel.invokeMethod('openGallery');
+    } catch (e) {
+      debugPrint('openGallery error: ${e.toString()}');
+    }
+  }
 }

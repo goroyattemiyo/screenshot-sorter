@@ -263,6 +263,11 @@ class _FolderSelectScreenState extends ConsumerState<FolderSelectScreen> {
         centerTitle: true,
         actions: [
           IconButton(
+            icon: const Icon(Icons.photo_library_outlined),
+            tooltip: 'ギャラリー',
+            onPressed: () => ImageSaveService.openGallery(),
+          ),
+          IconButton(
             icon: const Icon(Icons.settings),
             tooltip: '設定',
             onPressed: () => Navigator.push(
@@ -460,6 +465,21 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
       await _loadExistingFiles();
       widget.onSaveComplete?.call();
       setState(() { _saved = true; _saving = false; });
+      // Notify user with gallery shortcut
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('フォルダに保存しました。元のスクショはギャラリーから削除できます'),
+            duration: const Duration(seconds: 4),
+            action: SnackBarAction(
+              label: 'ギャラリーを開く',
+              onPressed: () {
+                ImageSaveService.openGallery();
+              },
+            ),
+          ),
+        );
+      }
     } catch (e) {
       setState(() => _saving = false);
       if (mounted) {
@@ -787,6 +807,11 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
         title: Text(widget.folderName),
         centerTitle: true,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.photo_library_outlined),
+            tooltip: 'ギャラリー',
+            onPressed: () => ImageSaveService.openGallery(),
+          ),
           if (ref.watch(driveUnlockedProvider))
             IconButton(
               icon: const Icon(Icons.cloud_upload_outlined),
